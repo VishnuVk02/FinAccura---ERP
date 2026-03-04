@@ -9,3 +9,4 @@ node_modules
 .env.example.development
 .env.example.production
 .env.example.test
+user_credentials.txt
