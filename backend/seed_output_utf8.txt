@@ -1,0 +1,320 @@
+﻿[dotenv@17.3.1] injecting env (8) from .env -- tip: ΓÜÖ∩╕Å  write to custom object with { processEnv: myObject }
+Database synced for production operations rework.
+node : Seeding error: 
+Error
+At line:1 char:1
++ node seed.js > 
+seed_output.txt 2>&1
++ ~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~
+    + CategoryInfo    
+          : NotSpeci  
+  fied: (Seeding er   
+ ror: Error:String    
+) [], RemoteExcep    
+tion
+    + FullyQualifiedE 
+   rrorId : NativeCo  
+  mmandError
+ 
+    at Query.run 
+(D:\ERP - Garment\back
+end\node_modules\seque
+lize\lib\dialects\post
+gres\query.js:50:25)
+    at D:\ERP - Garmen
+t\backend\node_modules
+\sequelize\lib\sequeli
+ze.js:315:28
+    at process.process
+TicksAndRejections (no
+de:internal/process/ta
+sk_queues:103:5)
+    at async PostgresQ
+ueryInterface.insert 
+(D:\ERP - Garment\back
+end\node_modules\seque
+lize\lib\dialects\abst
+ract\query-interface.j
+s:308:21)
+    at async 
+model.save (D:\ERP - G
+arment\backend\node_mo
+dules\sequelize\lib\mo
+del.js:2490:35)
+    at async 
+ExportOrder.create 
+(D:\ERP - Garment\back
+end\node_modules\seque
+lize\lib\model.js:1362
+:12)
+    at async seedData 
+(D:\ERP - Garment\back
+end\seed.js:61:27) {
+  name: 'SequelizeData
+baseError',
+  parent: error: 
+invalid input value 
+for enum "enum_ExportO
+rders_status": 
+"IN_PROGRESS"
+      at 
+parseErrorMessage 
+(D:\ERP - Garment\back
+end\node_modules\pg-pr
+otocol\dist\parser.js:
+305:11)
+      at 
+Parser.handlePacket 
+(D:\ERP - Garment\back
+end\node_modules\pg-pr
+otocol\dist\parser.js:
+143:27)
+      at Parser.parse 
+(D:\ERP - Garment\back
+end\node_modules\pg-pr
+otocol\dist\parser.js:
+37:38)
+      at 
+Socket.<anonymous> 
+(D:\ERP - Garment\back
+end\node_modules\pg-pr
+otocol\dist\index.js:1
+1:42)
+      at Socket.emit 
+(node:events:508:28)
+      at addChunk (nod
+e:internal/streams/rea
+dable:559:12)
+      at readableAddCh
+unkPushByteMode (node:
+internal/streams/reada
+ble:510:3)
+      at 
+Readable.push (node:in
+ternal/streams/readabl
+e:390:5)
+      at 
+TCP.onStreamRead (node
+:internal/stream_base_
+commons:189:23) {
+    length: 157,
+    severity: 'ERROR',
+    code: '22P02',
+    detail: undefined,
+    hint: undefined,
+    position: 
+undefined,
+    internalPosition: 
+undefined,
+    internalQuery: 
+undefined,
+    where: "unnamed 
+portal parameter $9 = 
+'...'",
+    schema: undefined,
+    table: undefined,
+    column: undefined,
+    dataType: 
+undefined,
+    constraint: 
+undefined,
+    file: 'enum.c',
+    line: '133',
+    routine: 
+'enum_in',
+    sql: 'INSERT INTO 
+"ExportOrders" ("id","
+orderNumber","styleNam
+e","orderDate","delive
+ryDate","totalQuantity
+","pricePerUnit","tota
+lAmount","currency","s
+tatus","buyerId","unit
+Id","financialYearId",
+"createdAt","updatedAt
+") VALUES (DEFAULT,$1,
+$2,$3,$4,$5,$6,$7,$8,$
+9,$10,$11,$12,$13,$14)
+ RETURNING "id","order
+Number","styleName","o
+rderDate","deliveryDat
+e","totalQuantity","pr
+icePerUnit","totalAmou
+nt","currency","status
+","buyerId","unitId","
+financialYearId","crea
+tedAt","updatedAt";',
+    parameters: [
+      '1002',
+      'Chino 
+Trousers',
+      '2024-08-05',
+      '2024-11-20',
+      3000,
+      18,
+      54000,
+      'USD',
+      'IN_PROGRESS',
+      1,
+      1,
+      1,
+      '2026-03-01 
+05:39:03.137 +00:00',
+      '2026-03-01 
+05:39:03.137 +00:00'
+    ]
+  },
+  original: error: 
+invalid input value 
+for enum "enum_ExportO
+rders_status": 
+"IN_PROGRESS"
+      at 
+parseErrorMessage 
+(D:\ERP - Garment\back
+end\node_modules\pg-pr
+otocol\dist\parser.js:
+305:11)
+      at 
+Parser.handlePacket 
+(D:\ERP - Garment\back
+end\node_modules\pg-pr
+otocol\dist\parser.js:
+143:27)
+      at Parser.parse 
+(D:\ERP - Garment\back
+end\node_modules\pg-pr
+otocol\dist\parser.js:
+37:38)
+      at 
+Socket.<anonymous> 
+(D:\ERP - Garment\back
+end\node_modules\pg-pr
+otocol\dist\index.js:1
+1:42)
+      at Socket.emit 
+(node:events:508:28)
+      at addChunk (nod
+e:internal/streams/rea
+dable:559:12)
+      at readableAddCh
+unkPushByteMode (node:
+internal/streams/reada
+ble:510:3)
+      at 
+Readable.push (node:in
+ternal/streams/readabl
+e:390:5)
+      at 
+TCP.onStreamRead (node
+:internal/stream_base_
+commons:189:23) {
+    length: 157,
+    severity: 'ERROR',
+    code: '22P02',
+    detail: undefined,
+    hint: undefined,
+    position: 
+undefined,
+    internalPosition: 
+undefined,
+    internalQuery: 
+undefined,
+    where: "unnamed 
+portal parameter $9 = 
+'...'",
+    schema: undefined,
+    table: undefined,
+    column: undefined,
+    dataType: 
+undefined,
+    constraint: 
+undefined,
+    file: 'enum.c',
+    line: '133',
+    routine: 
+'enum_in',
+    sql: 'INSERT INTO 
+"ExportOrders" ("id","
+orderNumber","styleNam
+e","orderDate","delive
+ryDate","totalQuantity
+","pricePerUnit","tota
+lAmount","currency","s
+tatus","buyerId","unit
+Id","financialYearId",
+"createdAt","updatedAt
+") VALUES (DEFAULT,$1,
+$2,$3,$4,$5,$6,$7,$8,$
+9,$10,$11,$12,$13,$14)
+ RETURNING "id","order
+Number","styleName","o
+rderDate","deliveryDat
+e","totalQuantity","pr
+icePerUnit","totalAmou
+nt","currency","status
+","buyerId","unitId","
+financialYearId","crea
+tedAt","updatedAt";',
+    parameters: [
+      '1002',
+      'Chino 
+Trousers',
+      '2024-08-05',
+      '2024-11-20',
+      3000,
+      18,
+      54000,
+      'USD',
+      'IN_PROGRESS',
+      1,
+      1,
+      1,
+      '2026-03-01 
+05:39:03.137 +00:00',
+      '2026-03-01 
+05:39:03.137 +00:00'
+    ]
+  },
+  sql: 'INSERT INTO 
+"ExportOrders" ("id","
+orderNumber","styleNam
+e","orderDate","delive
+ryDate","totalQuantity
+","pricePerUnit","tota
+lAmount","currency","s
+tatus","buyerId","unit
+Id","financialYearId",
+"createdAt","updatedAt
+") VALUES (DEFAULT,$1,
+$2,$3,$4,$5,$6,$7,$8,$
+9,$10,$11,$12,$13,$14)
+ RETURNING "id","order
+Number","styleName","o
+rderDate","deliveryDat
+e","totalQuantity","pr
+icePerUnit","totalAmou
+nt","currency","status
+","buyerId","unitId","
+financialYearId","crea
+tedAt","updatedAt";',
+  parameters: [
+    '1002',
+    'Chino Trousers',
+    '2024-08-05',
+    '2024-11-20',
+    3000,
+    18,
+    54000,
+    'USD',
+    'IN_PROGRESS',
+    1,
+    1,
+    1,
+    '2026-03-01 
+05:39:03.137 +00:00',
+    '2026-03-01 
+05:39:03.137 +00:00'
+  ]
+}

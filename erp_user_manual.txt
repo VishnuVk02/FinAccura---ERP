@@ -1,0 +1,197 @@
+1️⃣ PROJECT OVERVIEW
+
+What this ERP system does:
+This ERP system is a complete software solution designed to digitally manage an export-oriented garment manufacturing business. It connects different departments—administration, production, and finance—into one unified platform.
+
+Who uses it:
+Administrators, Export Managers, Production Managers, and Finance Managers.
+
+What problem it solves:
+It replaces manual paperwork and scattered spreadsheets by centralizing order details, tracking daily garment production, monitoring worker efficiency, handling foreign invoices, and managing comprehensive accounting records.
+
+How export garment workflow works:
+A Buyer places an Export Order → The order is assigned to Production Lines → Daily Production updates (like quantities produced and defects) are recorded → Once shipped, an Invoice is generated → Payment is received from the buyer in foreign currency and converted → Automated Reports and dashboards show the business's overall performance.
+
+2️⃣ MODULE EXPLANATION
+
+Authentication:
+The login screen. It ensures only authorized users can access the system securely.
+
+Role Management:
+Defines what each user can see and do within the system based on their job (Admin, Export, Production, Finance).
+
+Financial Year:
+The accounting period (e.g., April 2024 to March 2025) used to organize and separate financial records year by year.
+
+Unit:
+The physical factory building or branch where garment production happens.
+
+Chart of Accounts:
+A structured list of all financial accounts (like bank accounts, cash, expenses, and income) used for proper accounting and ledger tracking.
+
+Buyers:
+The international clients or companies who purchase the garments.
+
+Export Orders:
+The actual contracts or orders placed by the buyers, detailing the garment style, quantity required, price, and delivery date.
+
+Invoice:
+The official bill sent to the buyer once the garments are ready or shipped, asking for payment.
+
+Payments:
+The record of money received from the buyers against the generated invoices.
+
+Production Lines:
+The specific assembly lines or groups of sewing machines inside the factory unit where garments are stitched.
+
+Production Orders:
+The assignment of a specific export order to a particular production line with a set target quantity to produce.
+
+Daily Production Entry:
+The daily log of how many garments were successfully made and how many were defective on each production line.
+
+Worker Allocation:
+The process of assigning a specific number of workers to a production line for a particular shift (Day or Night).
+
+Production Dashboard:
+A visual summary screen showing real-time factory floor performance, like how many lines are active and daily output.
+
+Finance Dashboard:
+A visual summary screen showing the company's financial health, like money earned, payments pending, and expenses.
+
+Reports:
+Detailed, printable summaries of business data (like profit/loss statements or production efficiency) used for management review.
+
+3️⃣ ROLE-WISE STEP-BY-STEP USER FLOW
+
+👤 ADMIN USER FLOW
+
+Step 1: Login - Access the system using admin credentials.
+Step 2: Create Financial Year - Set up the current accounting period to organize records.
+Step 3: Create Units - Add the physical factory locations.
+Step 4: Create Chart of Accounts - Set up bank accounts and expense categories for the finance team.
+Step 5: Create Users - Add new employees into the system and assign their roles (Export, Production, Finance).
+Step 6: Monitor dashboards - View both production and finance visual summaries to oversee the entire business.
+
+👤 EXPORT MANAGER FLOW
+
+Step 1: Login - Access the system using export manager credentials.
+Step 2: Create Buyer - Enter the details of a new international client.
+Step 3: Create Export Order - Enter the details of a new garment order received from the buyer.
+Step 4: Monitor order status - Check whether the production team has completed the required garments.
+Step 5: Generate Invoice - Create a bill for the buyer once the order is ready for shipment.
+
+👤 PRODUCTION MANAGER FLOW
+
+Step 1: Login - Access the system using production manager credentials.
+Step 2: Create Production Line - Set up the assembly lines within the factory unit.
+Step 3: Assign Export Order to Line - Allocate a specific export order to a production line (creating a Production Order).
+Step 4: Enter Daily Production Data - Log the number of garments stitched and working hours every day.
+Step 5: Monitor Defects - Track how many garments were rejected or defective daily.
+Step 6: Track Completion Progress - Watch the numbers to ensure the target quantity is met before the delivery date.
+
+👤 FINANCE MANAGER FLOW
+
+Step 1: Login - Access the system using finance manager credentials.
+Step 2: Verify Chart of Accounts - Ensure all necessary bank and expense accounts exist.
+Step 3: View Invoice - See the bills sent to buyers by the export manager.
+Step 4: Record Payment - Enter the details when money is received from a buyer, including exchange rates.
+Step 5: Generate Voucher - Record daily factory expenses or internal money transfers.
+Step 6: View Ledger - Check the detailed transaction history of a specific account.
+Step 7: View Profit & Loss - See if the company is making a profit or a loss based on incomes and expenses.
+Step 8: View Trial Balance - Ensure all accounting debits and credits are balanced correctly.
+
+4️⃣ DATA ENTRY GUIDE
+
+Production Line:
+- Line Name
+- Unit Name
+- Total Workers
+- Supervisor Name
+- Active Status
+
+Production Order:
+- Export Order Reference
+- Assigned Production Line
+- Assigned Date
+- Target Quantity
+- Current Status (In Progress, Completed, Hold)
+
+Daily Production:
+- Production Order Reference
+- Production Date
+- Produced Quantity
+- Defect Quantity
+- Working Hours
+- Remarks
+
+Worker Allocation:
+- Production Line Reference
+- Total Workers Shifted
+- Shift Type (Day/Night)
+- Allocation Date
+
+Invoice:
+- Invoice Number
+- Invoice Date
+- Total Amount
+- Currency
+- Due Date
+- Status (Pending, Partial, Paid)
+
+Payment:
+- Payment Date
+- Amount Received
+- Currency
+- Exchange Rate
+- Received Amount In INR
+
+Buyer:
+- Name
+- Country
+- Currency
+- Contact Person
+- Email
+- Payment Terms
+
+Export Order:
+- Order Number
+- Style Name
+- Order Date
+- Delivery Date
+- Total Quantity
+- Price Per Unit
+- Total Amount
+- Currency
+
+5️⃣ SYSTEM WORKFLOW EXPLANATION
+
+Complete business cycle:
+1. Buyer places order: The Export Manager enters the international client's details and the specific garment order into the system.
+2. Order assigned to production: The Production Manager takes that order and breaks it down, assigning it to specific sewing lines on the factory floor.
+3. Daily production updates: Every day, supervisors record how many good garments were made, how many defects occurred, and how many hours were worked.
+4. Invoice generated: Once the total target quantity is stitched and shipped, the Export Manager creates an official bill for the buyer in their specific currency.
+5. Payment received: The buyer transfers the money. The Finance Manager records this payment, applying the current exchange rate to calculate the local currency amount.
+6. Voucher created: Throughout this time, the Finance Manager pays for daily factory expenses (threads, electricity, etc.) using vouchers.
+7. Reports generated: The system automatically compares the income from buyers against the voucher expenses.
+8. Profit calculated: Dashboards and detailed reports automatically display the overall efficiency of the factory and the financial profit or loss made on the orders.
+
+6️⃣ DASHBOARD MEANING EXPLANATION
+
+Active Lines:
+The total number of production lines currently running and assigned to uncompleted orders today.
+
+Total Workers:
+The sum of all workers currently assigned to the active production lines today.
+
+Active Orders:
+The number of export orders currently in the 'In Progress' status that have not yet been fully manufactured.
+
+Today's Output:
+The total sum of good garments successfully produced across all lines for the current day. Calculation: Sum of 'Produced Quantity' in today's Daily Production Entries.
+
+Avg Efficiency:
+A percentage showing how well the factory is performing compared to a standard benchmark based on time and workers. Calculation: A mix of working hours, total workers, and output quantities.
+
+Defects Today:
+The total number of garments rejected or found faulty today. Calculation: Sum of 'Defect Quantity' in today's Daily Production Entries.

@@ -1,0 +1,96 @@
+{
+  "monthlyRevenue": [
+    {
+      "month": "2024-10-01T00:00:00.000Z",
+      "revenue": "62500.00"
+    },
+    {
+      "month": "2024-11-01T00:00:00.000Z",
+      "revenue": "20000.00"
+    },
+    {
+      "month": "2026-03-01T00:00:00.000Z",
+      "revenue": "815000.00"
+    }
+  ],
+  "monthlyPayments": [
+    {
+      "month": "2024-10-01T00:00:00.000Z",
+      "received": "62500.00"
+    },
+    {
+      "month": "2026-03-01T00:00:00.000Z",
+      "received": "512500.00"
+    },
+    {
+      "month": "2026-04-01T00:00:00.000Z",
+      "received": "2500.00"
+    }
+  ],
+  "buyerRevenue": [
+    {
+      "totalAmount": "116500.00",
+      "Buyer.name": "Global Apparel Inc."
+    },
+    {
+      "totalAmount": "150000.00",
+      "Buyer.name": "Zara"
+    },
+    {
+      "totalAmount": "450000.00",
+      "Buyer.name": "Levi Strauss"
+    },
+    {
+      "totalAmount": "300000.00",
+      "Buyer.name": "H&M"
+    },
+    {
+      "totalAmount": "2500.00",
+      "Buyer.name": "Mango"
+    }
+  ],
+  "buyerPayments": [
+    {
+      "buyerName": "Global Apparel Inc.",
+      "totalReceived": "125000.00"
+    },
+    {
+      "buyerName": "Levi Strauss",
+      "totalReceived": "450000.00"
+    },
+    {
+      "buyerName": "Mango",
+      "totalReceived": "2500.00"
+    }
+  ],
+  "invoiceStatus": [
+    {
+      "status": "PENDING",
+      "count": "1",
+      "totalAmount": "20000.00"
+    },
+    {
+      "status": "PAID",
+      "count": "5",
+      "totalAmount": "877500.00"
+    }
+  ],
+  "expenseCategories": [
+    {
+      "amount": "230000.00",
+      "Account.name": "Electricity Bill",
+      "Account.SubGroup.id": 1,
+      "Account.SubGroup.name": "Factory Expenses"
+    }
+  ],
+  "orderStatus": [
+    {
+      "status": "CREATED",
+      "count": "2"
+    },
+    {
+      "status": "COMPLETED",
+      "count": "4"
+    }
+  ]
+}
