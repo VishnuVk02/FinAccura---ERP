@@ -74,13 +74,22 @@ class ProductionService {
             }
 
             // Fetch Worker Allocation for efficiency calculation
-            const allocation = await WorkerAllocation.findOne({
+            // Fallback: If no allocation for today, look for the most recent one for this line
+            let allocation = await WorkerAllocation.findOne({
                 where: {
                     lineId: prodOrder.lineId,
                     allocationDate: data.productionDate
                 },
                 transaction
             });
+
+            if (!allocation) {
+                allocation = await WorkerAllocation.findOne({
+                    where: { lineId: prodOrder.lineId },
+                    order: [['allocationDate', 'DESC']],
+                    transaction
+                });
+            }
 
             let efficiency = 0;
             if (allocation) {
@@ -139,6 +148,13 @@ class ProductionService {
     async getWorkerAllocations() {
         return await WorkerAllocation.findAll({
             include: [{ model: ProductionLine }]
+        });
+    }
+
+    async getLatestAllocationForLine(lineId) {
+        return await WorkerAllocation.findOne({
+            where: { lineId },
+            order: [['allocationDate', 'DESC']]
         });
     }
 

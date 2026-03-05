@@ -27,6 +27,7 @@ router.get('/daily-reports', productionController.getReportsByDate);
 // Worker Allocation
 router.post('/worker-allocation', productionController.allocateWorkers);
 router.get('/worker-allocation', productionController.getWorkerAllocations);
+router.get('/worker-allocation/last/:lineId', productionController.getLastAllocation);
 
 // Production Reports & Stats
 router.get('/reports/production-summary', productionController.getOrders);

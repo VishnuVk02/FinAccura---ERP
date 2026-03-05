@@ -238,14 +238,14 @@ const Payments = () => {
                                     </Col>
                                     <Col md={6}>
                                         <Form.Group className="mb-3">
-                                            <Form.Label>Bank Account (Debit)</Form.Label>
+                                            <Form.Label>Bank Account (Credit - Received)</Form.Label>
                                             <Form.Select required value={formData.bankAccountId} onChange={e => setFormData({ ...formData, bankAccountId: e.target.value })}>
                                                 <option value="">Select Bank (Dr)</option>
                                                 {accounts.filter(a => a.isBankAccount).map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
                                             </Form.Select>
                                         </Form.Group>
                                         <Form.Group className="mb-3">
-                                            <Form.Label>Buyer Ledger (Credit)</Form.Label>
+                                            <Form.Label>Buyer Ledger (Debit)</Form.Label>
                                             <Form.Select required value={formData.buyerAccountId} onChange={e => setFormData({ ...formData, buyerAccountId: e.target.value })}>
                                                 <option value="">Select Buyer A/c (Cr)</option>
                                                 {accounts.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
@@ -263,14 +263,14 @@ const Payments = () => {
                                 <>
                                     <Col md={6}>
                                         <Form.Group className="mb-3">
-                                            <Form.Label>Expense LEDGER (Debit)</Form.Label>
+                                            <Form.Label>Expense LEDGER (Credit)</Form.Label>
                                             <Form.Select required onChange={e => setFormData({ ...formData, expenseAccountId: e.target.value })}>
                                                 <option value="">Select Expense Type</option>
                                                 {accounts.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
                                             </Form.Select>
                                         </Form.Group>
                                         <Form.Group className="mb-3">
-                                            <Form.Label>Bank Account (Credit)</Form.Label>
+                                            <Form.Label>Bank Account (Debit - Paid)</Form.Label>
                                             <Form.Select required onChange={e => setFormData({ ...formData, bankAccountId: e.target.value })}>
                                                 <option value="">Select Bank</option>
                                                 {accounts.filter(a => a.isBankAccount).map(a => <option key={a.id} value={a.id}>{a.name}</option>)}

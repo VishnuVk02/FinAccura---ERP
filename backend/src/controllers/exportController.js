@@ -6,15 +6,21 @@ const createBuyer = async (req, res) => {
     try {
         const buyer = await Buyer.create(req.body, { transaction: t });
 
-        // Find Sundry Debtors subgroup
+        // Create or find Sundry Debtors account for the buyer
+        const accountName = `Accounts Receivable - ${buyer.name}`;
         const sundryDebtors = await SubGroup.findOne({ where: { name: 'Sundry Debtors' } });
+
         if (sundryDebtors) {
-            await Account.create({
-                name: `Accounts Receivable - ${buyer.name}`,
-                subGroupId: sundryDebtors.id,
-                isBankAccount: false,
-                isActive: true
-            }, { transaction: t });
+            // Check if account already exists (to avoid unique constraint error)
+            const [account] = await Account.findOrCreate({
+                where: { name: accountName },
+                defaults: {
+                    subGroupId: sundryDebtors.id,
+                    isBankAccount: false,
+                    isActive: true
+                },
+                transaction: t
+            });
         }
 
         await t.commit();
@@ -81,14 +87,21 @@ const updateBuyer = async (req, res) => {
 };
 
 const deleteBuyer = async (req, res) => {
+    const t = await Buyer.sequelize.transaction();
     try {
         const buyer = await Buyer.findByPk(req.params.id);
         if (!buyer) return res.status(404).json({ message: 'Buyer not found' });
 
-        // Also could delete associated ledger, but keeping it simple
-        await buyer.destroy();
-        res.json({ message: 'Buyer deleted successfully' });
+        // Delete associated ledger account
+        const accountName = `Accounts Receivable - ${buyer.name}`;
+        await Account.destroy({ where: { name: accountName }, transaction: t });
+
+        await buyer.destroy({ transaction: t });
+
+        await t.commit();
+        res.json({ message: 'Buyer and associated ledger deleted successfully' });
     } catch (error) {
+        await t.rollback();
         res.status(500).json({ message: error.message });
     }
 };

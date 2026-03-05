@@ -215,6 +215,9 @@ const DailyEntry = () => {
 
                         {allocation ? (
                             <div className="bg-light p-3 rounded mb-3 border">
+                                <div className="text-muted x-small mb-2 d-flex align-items-center gap-1">
+                                    <Calendar size={12} /> Last Allocation: {allocation.allocationDate}
+                                </div>
                                 <Row className="small">
                                     <Col xs={6} md={3}><strong>Present Workers:</strong><br />{allocation.presentWorkers}</Col>
                                     <Col xs={6} md={3}><strong>Std Output:</strong><br />{allocation.standardOutputPerWorker}</Col>

@@ -130,6 +130,16 @@ exports.getWorkerAllocations = async (req, res) => {
     }
 };
 
+exports.getLastAllocation = async (req, res) => {
+    try {
+        const { lineId } = req.params;
+        const allocation = await productionService.getLatestAllocationForLine(lineId);
+        res.json(allocation);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 exports.getReports = async (req, res) => {
     try {
         const summary = await productionService.getProductionSummary();

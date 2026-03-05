@@ -19,6 +19,7 @@ const DailyProductionReport = require('./DailyProductionReport');
 const WorkerAllocation = require('./WorkerAllocation');
 const PurchaseOrder = require('./PurchaseOrder');
 const PurchaseOrderStyle = require('./PurchaseOrderStyle');
+const InvoiceExtra = require('./InvoiceExtra');
 
 // Authentication Relationships
 Role.hasMany(User, { foreignKey: 'roleId' });
@@ -64,7 +65,13 @@ VoucherEntry.belongsTo(Account, { foreignKey: 'accountId' });
 Account.hasMany(VoucherEntry, { foreignKey: 'accountId' });
 
 Invoice.belongsTo(Voucher, { foreignKey: 'voucherId', as: 'salesVoucher' });
+Voucher.hasOne(Invoice, { foreignKey: 'voucherId', as: 'salesInvoice' });
 Payment.belongsTo(Voucher, { foreignKey: 'voucherId', as: 'paymentVoucher' });
+Voucher.hasOne(Payment, { foreignKey: 'voucherId', as: 'invoicePayment' });
+
+Invoice.hasOne(InvoiceExtra, { foreignKey: 'invoiceId', as: 'extraDetails' });
+InvoiceExtra.belongsTo(Invoice, { foreignKey: 'invoiceId' });
+
 
 // Production Relationships
 ProductionLine.belongsTo(Unit, { foreignKey: 'unitId' });
@@ -114,7 +121,8 @@ const db = {
     DailyProductionReport,
     WorkerAllocation,
     PurchaseOrder,
-    PurchaseOrderStyle
+    PurchaseOrderStyle,
+    InvoiceExtra
 };
 
 module.exports = db;

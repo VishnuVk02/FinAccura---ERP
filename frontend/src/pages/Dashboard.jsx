@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Row, Col, Card, Badge, ProgressBar } from 'react-bootstrap';
 import { DollarSign, BarChart3, TrendingUp, AlertCircle, ShoppingBag, CheckCircle, Clock, Factory, Users, Activity } from 'lucide-react';
-import { BarChart, Bar, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { BarChart, Bar, AreaChart, Area, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import api from '../services/api';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchDashboardRequest } from '../store/slices/dashboardSlice';
@@ -373,7 +373,7 @@ const Dashboard = () => {
                                     { label: 'Total POs', value: poStats.summary?.totalPOs, color: 'text-primary' },
                                     { label: 'In Production', value: poStats.summary?.inProduction, color: 'text-warning' },
                                     { label: 'Completed', value: poStats.summary?.completed, color: 'text-success' },
-                                    { label: 'Total Buyer Value', value: `₹${poStats.buyerValue?.reduce((acc, b) => acc + parseFloat(b.totalValue), 0).toLocaleString()}`, color: 'text-dark' }
+                                    { label: 'Total Buyer Value', value: `$ ${poStats.buyerValue?.reduce((acc, b) => acc + parseFloat(b.totalValue), 0).toLocaleString()}`, color: 'text-dark' }
                                 ].map((s, i) => (
                                     <Col md={3} key={i}>
                                         <div className="p-3 rounded bg-white shadow-sm border text-center">
@@ -401,7 +401,7 @@ const Dashboard = () => {
                                             <XAxis dataKey="buyerName" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 11 }} />
                                             <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 11 }} />
                                             <Tooltip />
-                                            <Bar dataKey="totalValue" name="Total Value" fill="#6366f1" radius={[4, 4, 0, 0]} barSize={40}>
+                                            <Bar dataKey="totalValue" name="Total Value ($)" fill="#6366f1" radius={[4, 4, 0, 0]} barSize={40}>
                                                 {poStats.buyerValue?.map((entry, index) => (
                                                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                                 ))}
@@ -453,20 +453,25 @@ const Dashboard = () => {
                                 </Card.Header>
                                 <Card.Body style={{ height: 300 }}>
                                     <ResponsiveContainer width="100%" height="100%">
-                                        <AreaChart data={poStats.monthlyPOs}>
-                                            <defs>
-                                                <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                                                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.1} />
-                                                    <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
-                                                </linearGradient>
-                                            </defs>
+                                        <LineChart data={poStats.monthlyPOs}>
                                             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                                             <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 11 }}
                                                 tickFormatter={(val) => new Date(val).toLocaleDateString(undefined, { month: 'short' })} />
                                             <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 11 }} />
-                                            <Tooltip />
-                                            <Area type="monotone" dataKey="totalValue" name="PO Value" stroke="#10b981" fillOpacity={1} fill="url(#colorValue)" />
-                                        </AreaChart>
+                                            <Tooltip
+                                                contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}
+                                            />
+                                            <Legend verticalAlign="top" align="right" />
+                                            <Line
+                                                type="monotone"
+                                                dataKey="totalValue"
+                                                name="PO Value ($)"
+                                                stroke="#10b981"
+                                                strokeWidth={3}
+                                                dot={{ r: 4, fill: '#10b981', strokeWidth: 2, stroke: '#fff' }}
+                                                activeDot={{ r: 6, strokeWidth: 0 }}
+                                            />
+                                        </LineChart>
                                     </ResponsiveContainer>
                                 </Card.Body>
                             </Card>

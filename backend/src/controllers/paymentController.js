@@ -1,4 +1,4 @@
-const { Payment, Invoice, sequelize } = require('../models');
+const { Payment, Invoice, sequelize, PurchaseOrder } = require('../models');
 const { createBalancedVoucher } = require('../services/voucherService');
 
 // @desc    Create Payment and auto-generate accounting entry
@@ -41,8 +41,8 @@ const createPayment = async (req, res) => {
             createdBy: req.user.id,
             narration: `Payment received for Invoice ID: ${invoiceId}`,
             entries: [
-                { accountId: bankAccountId, debitAmount: receivedAmountInINR, creditAmount: 0 },
-                { accountId: buyerAccountId, debitAmount: 0, creditAmount: receivedAmountInINR }
+                { accountId: bankAccountId, debitAmount: 0, creditAmount: receivedAmountInINR },
+                { accountId: buyerAccountId, debitAmount: receivedAmountInINR, creditAmount: 0 }
             ]
         }, t);
 
@@ -57,6 +57,14 @@ const createPayment = async (req, res) => {
 
         if (totalPaid >= parseFloat(invoice.totalAmount)) {
             invoice.status = 'PAID';
+            // Auto-update PO status if linked
+            if (invoice.purchaseOrderId) {
+                const po = await PurchaseOrder.findByPk(invoice.purchaseOrderId, { transaction: t });
+                if (po) {
+                    po.status = 'PAYMENT_COMPLETED';
+                    await po.save({ transaction: t });
+                }
+            }
         } else if (totalPaid > 0) {
             invoice.status = 'PARTIAL';
         }
@@ -104,8 +112,8 @@ const createExpense = async (req, res) => {
             createdBy: req.user.id,
             narration: narration || `Company Expense Record`,
             entries: [
-                { accountId: expenseAccountId, debitAmount: amount, creditAmount: 0 },
-                { accountId: bankAccountId, debitAmount: 0, creditAmount: amount }
+                { accountId: bankAccountId, debitAmount: amount, creditAmount: 0 },
+                { accountId: expenseAccountId, debitAmount: 0, creditAmount: amount }
             ]
         }, t);
 

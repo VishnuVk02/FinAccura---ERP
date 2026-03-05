@@ -1,4 +1,5 @@
 const { PurchaseOrder, PurchaseOrderStyle, User, ProductionOrder, ProductionLine } = require('../models');
+const { triggerAutoInvoice } = require('./invoiceController');
 
 exports.createPO = async (req, res) => {
     try {
@@ -89,68 +90,9 @@ exports.updateStatus = async (req, res) => {
         const oldStatus = po.status;
         await po.update({ status }, { transaction: t });
 
-        // Automation: If status is or becomes READY_FOR_EXPORT, create an Invoice if it doesn't already exist
-        if (status === 'READY_FOR_EXPORT') {
-            const { Invoice, Account, SubGroup, FinancialYear, Unit } = require('../models');
-            const existingInvoice = await Invoice.findOne({ where: { purchaseOrderId: id }, transaction: t });
-
-            if (!existingInvoice) {
-                const { createBalancedVoucher } = require('../services/voucherService');
-
-                // 1. Find or Use Default Ledgers
-                const { Op } = require('sequelize');
-                // Buyer Account: Search by name "Accounts Receivable - [BuyerName]"
-                const buyerAccount = await Account.findOne({
-                    where: {
-                        [Op.or]: [
-                            { name: { [Op.iLike]: `Accounts Receivable - ${po.buyerName}%` } },
-                            { name: { [Op.iLike]: `%${po.buyerName}%` } }
-                        ]
-                    },
-                    transaction: t
-                });
-
-                // Sales Account: Search for "Export Sales Account" or "Sales Revenue"
-                const salesAccount = await Account.findOne({
-                    where: {
-                        name: { [Op.iLike]: '%Sales%' }
-                    },
-                    transaction: t
-                });
-
-                // Financial Year & Unit (Picking defaults if not available)
-                const activeYear = await FinancialYear.findOne({ where: { isActive: true }, transaction: t });
-                const defaultUnit = await Unit.findOne({ transaction: t });
-
-                if (buyerAccount && salesAccount && activeYear && defaultUnit) {
-                    const invoiceNumber = `INV-PO-${po.id}-${Date.now().toString().slice(-4)}`;
-
-                    // Create Invoice
-                    const invoice = await Invoice.create({
-                        invoiceNumber,
-                        purchaseOrderId: po.id,
-                        invoiceDate: new Date(),
-                        totalAmount: po.totalValue,
-                        currency: 'USD', // Default for POs in this system
-                        status: 'PENDING'
-                    }, { transaction: t });
-
-                    // Create Accounting Voucher
-                    await createBalancedVoucher({
-                        voucherNumber: `AUTO-SALES-${invoiceNumber}`,
-                        voucherType: 'SALES',
-                        date: new Date(),
-                        financialYearId: activeYear.id,
-                        unitId: defaultUnit.id,
-                        createdBy: req.user.id,
-                        narration: `Automated Invoice for PO #${po.id}`,
-                        entries: [
-                            { accountId: buyerAccount.id, debitAmount: po.totalValue, creditAmount: 0 },
-                            { accountId: salesAccount.id, debitAmount: 0, creditAmount: po.totalValue }
-                        ]
-                    }, t);
-                }
-            }
+        // Trigger automatic invoice generation on EXPORTED status
+        if (status === 'EXPORTED') {
+            await triggerAutoInvoice(id, t);
         }
 
         await t.commit();

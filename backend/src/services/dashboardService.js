@@ -39,21 +39,93 @@ const getAccountIdsByMainGroup = async (nature, name) => {
 
 const getDashboardStats = async () => {
     try {
-        const totalRevenue = await ExportOrder.sum('totalAmountInINR') || 0;
-        const pendingInvoices = await Invoice.count({ where: { status: ['PENDING', 'PARTIAL'] } });
-        const totalReceived = await Payment.sum('receivedAmountInINR') || 0;
-
-        // 1. Get Expense Account IDs
+        // 1. Get Account IDs for Income and Expense
+        const incomeAccountIds = await getAccountIdsByMainGroup(null, 'Income');
         const expenseAccountIds = await getAccountIdsByMainGroup(null, 'Expense');
 
-        // 2. Sum debitAmount from voucher entries for these accounts
-        const totalExpense = await VoucherEntry.sum('debitAmount', {
-            where: { accountId: { [Op.in]: expenseAccountIds } }
+        // 2. Sum revenue from Ledger with dynamic conversion
+        const revenueResult = await VoucherEntry.findAll({
+            attributes: [
+                [
+                    sequelize.literal(`SUM(
+                        CASE 
+                            WHEN "Voucher->salesInvoice"."currency" IS NOT NULL AND "Voucher->salesInvoice"."currency" != 'INR'
+                            THEN "VoucherEntry"."creditAmount" * "Voucher->salesInvoice"."exchangeRate"
+                            ELSE "VoucherEntry"."creditAmount"
+                        END
+                    )`), 'total'
+                ]
+            ],
+            include: [{
+                model: Voucher,
+                attributes: [],
+                include: [{
+                    model: Invoice,
+                    as: 'salesInvoice',
+                    attributes: []
+                }]
+            }],
+            where: { accountId: { [Op.in]: incomeAccountIds } },
+            raw: true
+        });
+        const totalRevenue = revenueResult[0]?.total || 0;
+
+        // 3. Sum expense from Ledger (simplified as usually in INR, but keeping logic for consistency)
+        const expenseResult = await VoucherEntry.findAll({
+            attributes: [
+                [
+                    sequelize.literal(`SUM(
+                        CASE 
+                            WHEN "Voucher->salesInvoice"."currency" IS NOT NULL AND "Voucher->salesInvoice"."currency" != 'INR'
+                            THEN "VoucherEntry"."creditAmount" * "Voucher->salesInvoice"."exchangeRate"
+                            ELSE "VoucherEntry"."creditAmount"
+                        END
+                    )`), 'total'
+                ]
+            ],
+            include: [{
+                model: Voucher,
+                attributes: [],
+                include: [{
+                    model: Invoice,
+                    as: 'salesInvoice',
+                    attributes: []
+                }]
+            }],
+            where: { accountId: { [Op.in]: expenseAccountIds } },
+            raw: true
+        });
+        const totalExpense = expenseResult[0]?.total || 0;
+
+        // 4. Sum total received (Credits to Bank Accounts in Receipt Vouchers)
+        const bankAccountIds = await Account.findAll({
+            where: { isBankAccount: true },
+            attributes: ['id'],
+            raw: true
+        }).then(accounts => accounts.map(a => a.id));
+
+        const totalReceived = await VoucherEntry.sum('creditAmount', {
+            include: [{
+                model: Voucher,
+                where: { voucherType: 'RECEIPT' },
+                attributes: []
+            }],
+            where: { accountId: { [Op.in]: bankAccountIds } }
         }) || 0;
 
+        const pendingInvoices = await Invoice.count({ where: { status: ['PENDING', 'PARTIAL'] } });
         const netProfit = parseFloat(totalRevenue) - parseFloat(totalExpense);
-        const totalOrders = await ExportOrder.count();
-        const completedOrders = await ExportOrder.count({ where: { status: 'COMPLETED' } });
+
+        // Unify Counts (PO + EO)
+        const eoCount = await ExportOrder.count();
+        const poCount = await PurchaseOrder.count();
+        const totalOrders = eoCount + poCount;
+
+        const completedEo = await ExportOrder.count({ where: { status: 'COMPLETED' } });
+        const completedPo = await PurchaseOrder.count({
+            where: { status: { [Op.in]: ['EXPORTED', 'PAYMENT_PENDING', 'PAYMENT_COMPLETED'] } }
+        });
+        const completedOrders = completedEo + completedPo;
 
         return {
             totalRevenue: parseFloat(totalRevenue),
@@ -77,7 +149,10 @@ const getFinanceStats = async () => {
         const monthlyRevenue = await Invoice.findAll({
             attributes: [
                 [sequelize.fn('DATE_TRUNC', 'month', sequelize.col('invoiceDate')), 'month'],
-                [sequelize.fn('SUM', sequelize.col('totalAmountInINR')), 'revenue']
+                [
+                    sequelize.literal(`SUM(COALESCE(NULLIF("totalAmountInINR", 0), "totalAmount" * "exchangeRate"))`),
+                    'revenue'
+                ]
             ],
             group: [sequelize.fn('DATE_TRUNC', 'month', sequelize.col('invoiceDate'))],
             order: [[sequelize.fn('DATE_TRUNC', 'month', sequelize.col('invoiceDate')), 'ASC']],
@@ -88,20 +163,40 @@ const getFinanceStats = async () => {
         const monthlyPayments = await Payment.findAll({
             attributes: [
                 [sequelize.fn('DATE_TRUNC', 'month', sequelize.col('paymentDate')), 'month'],
-                [sequelize.fn('SUM', sequelize.col('receivedAmountInINR')), 'received']
+                [
+                    sequelize.literal(`SUM(COALESCE(NULLIF("receivedAmountInINR", 0), "amount" * "exchangeRate"))`),
+                    'received'
+                ]
             ],
             group: [sequelize.fn('DATE_TRUNC', 'month', sequelize.col('paymentDate'))],
             order: [[sequelize.fn('DATE_TRUNC', 'month', sequelize.col('paymentDate')), 'ASC']],
             raw: true
         });
 
-        // Buyer-wise revenue
-        const buyerRevenue = await ExportOrder.findAll({
+        // Buyer-wise revenue (Inclusive of all order types)
+        const buyerRevenue = await Invoice.findAll({
             attributes: [
-                [sequelize.fn('SUM', sequelize.col('Invoice.totalAmountInINR')), 'totalAmount']
+                [
+                    sequelize.literal(`COALESCE("ExportOrder->Buyer"."name", "PurchaseOrder"."buyerName")`),
+                    'Buyer.name'
+                ],
+                [
+                    sequelize.literal(`SUM(COALESCE(NULLIF("Invoice"."totalAmountInINR", 0), "Invoice"."totalAmount" * "Invoice"."exchangeRate"))`),
+                    'totalAmount'
+                ]
             ],
-            include: [{ model: Invoice, attributes: [] }, { model: Buyer, attributes: ['name'] }],
-            group: ['Buyer.id', 'Buyer.name'],
+            include: [
+                {
+                    model: ExportOrder,
+                    attributes: [],
+                    include: [{ model: Buyer, attributes: [] }]
+                },
+                {
+                    model: PurchaseOrder,
+                    attributes: []
+                }
+            ],
+            group: [sequelize.literal(`COALESCE("ExportOrder->Buyer"."name", "PurchaseOrder"."buyerName")`)],
             raw: true
         });
 
@@ -110,7 +205,10 @@ const getFinanceStats = async () => {
             attributes: [
                 'status',
                 [sequelize.fn('COUNT', sequelize.col('id')), 'count'],
-                [sequelize.fn('SUM', sequelize.col('totalAmount')), 'totalAmount']
+                [
+                    sequelize.literal(`SUM(COALESCE(NULLIF("totalAmountInINR", 0), "totalAmount" * "exchangeRate"))`),
+                    'totalAmount'
+                ]
             ],
             group: ['status'],
             raw: true
@@ -119,10 +217,10 @@ const getFinanceStats = async () => {
         // Get Expense Account IDs for filtered summary
         const expenseAccountIds = await getAccountIdsByMainGroup(null, 'Expense');
 
-        // Expense category breakdown from voucher entries
+        // Expense category breakdown from voucher entries (Logic Reversed)
         const expenseCategories = await VoucherEntry.findAll({
             attributes: [
-                [sequelize.fn('SUM', sequelize.col('debitAmount')), 'amount']
+                [sequelize.fn('SUM', sequelize.col('creditAmount')), 'amount']
             ],
             include: [{
                 model: Account,
@@ -133,7 +231,7 @@ const getFinanceStats = async () => {
                 }]
             }],
             where: {
-                debitAmount: { [Op.gt]: 0 },
+                creditAmount: { [Op.gt]: 0 },
                 accountId: { [Op.in]: expenseAccountIds }
             },
             group: ['Account.id', 'Account.name', 'Account.SubGroup.id', 'Account.SubGroup.name'],
@@ -151,21 +249,34 @@ const getFinanceStats = async () => {
         });
 
         // Amount received by buyer
+        // Amount received by buyer (Inclusive of all order types)
         const buyerPayments = await Payment.findAll({
             attributes: [
-                [sequelize.col('Invoice.ExportOrder.Buyer.name'), 'buyerName'],
-                [sequelize.fn('SUM', sequelize.col('receivedAmountInINR')), 'totalReceived']
+                [
+                    sequelize.literal(`COALESCE("Invoice->ExportOrder->Buyer"."name", "Invoice->PurchaseOrder"."buyerName")`),
+                    'buyerName'
+                ],
+                [
+                    sequelize.literal(`SUM(COALESCE(NULLIF("Payment"."receivedAmountInINR", 0), "Payment"."amount" * "Payment"."exchangeRate"))`),
+                    'totalReceived'
+                ]
             ],
             include: [{
                 model: Invoice,
                 attributes: [],
-                include: [{
-                    model: ExportOrder,
-                    attributes: [],
-                    include: [{ model: Buyer, attributes: [] }]
-                }]
+                include: [
+                    {
+                        model: ExportOrder,
+                        attributes: [],
+                        include: [{ model: Buyer, attributes: [] }]
+                    },
+                    {
+                        model: PurchaseOrder,
+                        attributes: []
+                    }
+                ]
             }],
-            group: ['Invoice.ExportOrder.Buyer.id', 'Invoice.ExportOrder.Buyer.name'],
+            group: [sequelize.literal(`COALESCE("Invoice->ExportOrder->Buyer"."name", "Invoice->PurchaseOrder"."buyerName")`)],
             raw: true
         });
 
@@ -216,7 +327,10 @@ const getExportStats = async () => {
         const buyerVolume = await ExportOrder.findAll({
             attributes: [
                 [sequelize.col('Buyer.name'), 'buyerName'],
-                [sequelize.fn('SUM', sequelize.col('totalAmount')), 'totalVolume'],
+                [
+                    sequelize.literal(`SUM("ExportOrder"."totalAmount" * "ExportOrder"."exchangeRate")`),
+                    'totalVolume'
+                ],
                 [sequelize.fn('SUM', sequelize.col('totalQuantity')), 'totalQuantity']
             ],
             include: [{ model: Buyer, attributes: [] }],
@@ -239,7 +353,10 @@ const getExportStats = async () => {
             attributes: [
                 [sequelize.fn('DATE_TRUNC', 'month', sequelize.col('orderDate')), 'month'],
                 [sequelize.fn('COUNT', sequelize.col('id')), 'orderCount'],
-                [sequelize.fn('SUM', sequelize.col('totalAmount')), 'totalValue']
+                [
+                    sequelize.literal(`SUM("ExportOrder"."totalAmount" * "ExportOrder"."exchangeRate")`),
+                    'totalValue'
+                ]
             ],
             group: [sequelize.fn('DATE_TRUNC', 'month', sequelize.col('orderDate'))],
             order: [[sequelize.fn('DATE_TRUNC', 'month', sequelize.col('orderDate')), 'ASC']],

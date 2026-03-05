@@ -72,7 +72,14 @@ function* handleFetchAllocation(action) {
     try {
         const { lineId, date } = action.payload;
         const response = yield call(api.get, `/production/worker-allocation?lineId=${lineId}&date=${date}`);
-        const alloc = response.data.find(a => a.lineId == lineId && a.allocationDate === date);
+        let alloc = response.data.find(a => a.lineId == lineId && a.allocationDate === date);
+
+        if (!alloc && lineId) {
+            // Fallback: Fetch last known allocation for this line
+            const lastAllocRes = yield call(api.get, `/production/worker-allocation/last/${lineId}`);
+            alloc = lastAllocRes.data;
+        }
+
         yield put(fetchAllocationSuccess(alloc || null));
     } catch (error) {
         yield put(productionError(error.response?.data?.message || 'Failed to fetch allocation'));

@@ -260,13 +260,46 @@ const POManagement = () => {
                             <Col md={4}>
                                 <Form.Group className="mb-3">
                                     <Form.Label className="small fw-bold">Fabric Type *</Form.Label>
-                                    <Form.Control required value={formData.fabricType} onChange={e => setFormData({ ...formData, fabricType: e.target.value })} placeholder="e.g. Cotton Denim" />
+                                    <Form.Select
+                                        required
+                                        value={formData.fabricType}
+                                        onChange={e => setFormData({ ...formData, fabricType: e.target.value })}
+                                    >
+                                        <option value="">Select Fabric</option>
+                                        <option value="Cotton">Cotton</option>
+                                        <option value="Denim">Denim</option>
+                                        <option value="Linen">Linen</option>
+                                        <option value="Polyester">Polyester</option>
+                                        <option value="Rayon">Rayon</option>
+                                        <option value="Silk">Silk</option>
+                                        <option value="Wool">Wool</option>
+                                        <option value="Viscose">Viscose</option>
+                                        <option value="Organic Cotton">Organic Cotton</option>
+                                        <option value="Cotton Blend">Cotton Blend</option>
+                                        <option value="cotton Denim">cotton Denim</option>
+                                    </Form.Select>
                                 </Form.Group>
                             </Col>
                             <Col md={4}>
                                 <Form.Group className="mb-3">
                                     <Form.Label className="small fw-bold">Fit Type *</Form.Label>
-                                    <Form.Control required value={formData.fitType} onChange={e => setFormData({ ...formData, fitType: e.target.value })} placeholder="e.g. Slim Fit" />
+                                    <Form.Select
+                                        required
+                                        value={formData.fitType}
+                                        onChange={e => setFormData({ ...formData, fitType: e.target.value })}
+                                    >
+                                        <option value="">Select Fit</option>
+                                        <option value="Slim Fit">Slim Fit</option>
+                                        <option value="Regular Fit">Regular Fit</option>
+                                        <option value="Relaxed Fit">Relaxed Fit</option>
+                                        <option value="Skinny Fit">Skinny Fit</option>
+                                        <option value="Straight Fit">Straight Fit</option>
+                                        <option value="Loose Fit">Loose Fit</option>
+                                        <option value="Tailored Fit">Tailored Fit</option>
+                                        <option value="Athletic Fit">Athletic Fit</option>
+                                        <option value="Classic Fit">Classic Fit</option>
+                                        <option value="Comfort Fit">Comfort Fit</option>
+                                    </Form.Select>
                                 </Form.Group>
                             </Col>
                             <Col md={4}>
