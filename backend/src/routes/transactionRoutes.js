@@ -6,7 +6,7 @@ const { protect, authorize } = require('../middleware/authMiddleware');
 
 router.post('/invoices', protect, authorize('ADMIN', 'FINANCE_MANAGER', 'EXPORT_MANAGER'), createInvoice);
 router.get('/invoices', protect, getInvoices);
-router.get('/ready-to-invoice', protect, authorize('ADMIN', 'FINANCE_MANAGER'), getReadyToInvoice);
+router.get('/ready-to-invoice', protect, authorize('ADMIN', 'FINANCE_MANAGER', 'EXPORT_MANAGER'), getReadyToInvoice);
 
 router.post('/payments', protect, authorize('ADMIN', 'FINANCE_MANAGER'), createPayment);
 router.get('/payments', protect, getPayments);

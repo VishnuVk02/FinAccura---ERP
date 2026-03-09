@@ -14,7 +14,7 @@ import DailyEntry from './production/DailyEntry';
 import Progress from './production/Progress';
 import Workers from './production/Workers';
 import POInbound from './production/POInbound';
-import { ShoppingBag } from 'lucide-react';
+import { ShoppingBag, Calendar } from 'lucide-react';
 
 import { usePageEnter } from '../hooks/usePageTransition';
 
@@ -22,6 +22,7 @@ const Production = () => {
     const [searchParams] = useSearchParams();
     const initialTab = searchParams.get('tab') || 'progress';
     const [activeTab, setActiveTab] = useState(initialTab);
+    const [commonDate, setCommonDate] = useState(new Date().toISOString().split('T')[0]);
     const pageRef = usePageEnter();
     const dispatch = useDispatch();
 
@@ -29,8 +30,8 @@ const Production = () => {
         { id: 'progress', label: 'Order Progress', icon: <BarChart2 size={18} />, component: <Progress /> },
         { id: 'lines', label: 'Lines Management', icon: <Factory size={18} />, component: <Lines /> },
         { id: 'orders', label: 'Production Orders', icon: <ClipboardList size={18} />, component: <Orders /> },
-        { id: 'daily', label: 'Daily Entry', icon: <PlusCircle size={18} />, component: <DailyEntry /> },
-        { id: 'workers', label: 'Worker Allocation', icon: <Users size={18} />, component: <Workers /> },
+        { id: 'daily', label: 'Daily Entry', icon: <PlusCircle size={18} />, component: <DailyEntry commonDate={commonDate} /> },
+        { id: 'workers', label: 'Worker Allocation', icon: <Users size={18} />, component: <Workers commonDate={commonDate} /> },
         { id: 'inbound', label: 'Inbound POs', icon: <ShoppingBag size={18} />, component: <POInbound /> },
     ];
 
@@ -49,10 +50,22 @@ const Production = () => {
                     </h2>
                     <p className="text-muted mb-0 small">Manage end-to-end garment production activities and tracking.</p>
                 </div>
-                <div className="d-none d-md-block">
-                    <Badge bg="light" text="dark" className="border px-3 py-2 fw-normal">
-                        <Info size={14} className="me-2 text-primary" /> Standard Rate: 8 Pcs/Hr
-                    </Badge>
+                <div className="d-flex align-items-center gap-3">
+                    <div className="d-flex align-items-center gap-2 bg-white border rounded px-2 py-1 shadow-sm">
+                        <Calendar size={16} className="text-primary" />
+                        <input
+                            type="date"
+                            className="border-0 shadow-none small fw-semibold"
+                            style={{ outline: 'none', cursor: 'pointer' }}
+                            value={commonDate}
+                            onChange={(e) => setCommonDate(e.target.value)}
+                        />
+                    </div>
+                    <div className="d-none d-md-block">
+                        <Badge bg="light" text="dark" className="border px-3 py-2 fw-normal">
+                            <Info size={14} className="me-2 text-primary" /> Standard Rate: 8 Pcs/Hr
+                        </Badge>
+                    </div>
                 </div>
             </div>
 

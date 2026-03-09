@@ -74,6 +74,24 @@ const getExportOrders = async (req, res) => {
     }
 };
 
+const updateExportOrderStatus = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { status } = req.body;
+
+        const order = await ExportOrder.findByPk(id);
+        if (!order) return res.status(404).json({ message: 'Export order not found' });
+
+        order.status = status;
+        await order.save();
+
+        res.json({ message: 'Order status updated successfully', order });
+    } catch (error) {
+        console.error('Update Export Order Status Error:', error);
+        res.status(500).json({ message: error.message });
+    }
+};
+
 const updateBuyer = async (req, res) => {
     try {
         const buyer = await Buyer.findByPk(req.params.id);
@@ -112,5 +130,6 @@ module.exports = {
     updateBuyer,
     deleteBuyer,
     createExportOrder,
-    getExportOrders
+    getExportOrders,
+    updateExportOrderStatus
 };

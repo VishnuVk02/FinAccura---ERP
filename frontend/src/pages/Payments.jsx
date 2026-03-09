@@ -30,7 +30,10 @@ const Payments = () => {
             setPayments(pay.data); setInvoices(inv.data);
             setUnits(unt.data); setYears(yr.data);
             const flatAccounts = [];
-            acc.data.forEach(mg => mg.Groups.forEach(g => g.SubGroups.forEach(sg => sg.Accounts.forEach(a => flatAccounts.push(a)))));
+            acc.data.forEach(mg => mg.Groups.forEach(g => g.SubGroups.forEach(sg => sg.Accounts.forEach(a => flatAccounts.push({
+                ...a,
+                mainGroupName: mg.name
+            })))));
             setAccounts(flatAccounts);
 
             // Auto-select unit and financial year defaults
@@ -266,7 +269,7 @@ const Payments = () => {
                                             <Form.Label>Expense LEDGER (Credit)</Form.Label>
                                             <Form.Select required onChange={e => setFormData({ ...formData, expenseAccountId: e.target.value })}>
                                                 <option value="">Select Expense Type</option>
-                                                {accounts.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
+                                                {accounts.filter(a => a.mainGroupName === 'Expense').map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
                                             </Form.Select>
                                         </Form.Group>
                                         <Form.Group className="mb-3">

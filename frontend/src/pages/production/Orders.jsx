@@ -44,6 +44,7 @@ const Orders = () => {
                             <th className="ps-4">Order #</th>
                             <th>Target Line</th>
                             <th>Target Qty</th>
+                            <th>Delivery Date</th>
                             <th>Produced</th>
                             <th>Defects</th>
                             <th>Progress</th>
@@ -65,6 +66,13 @@ const Orders = () => {
                                     </td>
                                     <td>{order.ProductionLine?.lineName}</td>
                                     <td className="fw-semibold">{order.targetQuantity?.toLocaleString()}</td>
+                                    <td>
+                                        {order.ExportOrder?.exportDate
+                                            ? new Date(order.ExportOrder.exportDate).toLocaleDateString()
+                                            : order.PurchaseOrder?.exportDate
+                                                ? new Date(order.PurchaseOrder.exportDate).toLocaleDateString()
+                                                : '-'}
+                                    </td>
                                     <td>{order.producedQuantity?.toLocaleString()}</td>
                                     <td>
                                         <Badge bg={order.defectQuantity > (order.targetQuantity * 0.05) ? 'danger' : 'light'} text={order.defectQuantity > (order.targetQuantity * 0.05) ? 'white' : 'dark'}>

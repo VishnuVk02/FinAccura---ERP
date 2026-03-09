@@ -18,7 +18,10 @@ function* handleLogin(action) {
         localStorage.setItem('token', token);
         yield put(loginSuccess({ user, token }));
     } catch (error) {
-        yield put(loginFailure(error.response?.data?.message || 'Login failed'));
+        console.error('[LOGIN SAGA ERROR]', error);
+        console.error('Error response:', error.response);
+        console.error('Error message:', error.message);
+        yield put(loginFailure(error.response?.data?.message || error.message || 'Login failed'));
     }
 }
 

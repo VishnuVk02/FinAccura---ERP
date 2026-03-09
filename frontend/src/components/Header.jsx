@@ -35,16 +35,16 @@ const Header = () => {
     };
 
     return (
-        <Navbar bg="white" expand="lg" className="border-bottom sticky-top">
+        <Navbar expand="lg" className="custom-header sticky-top shadow-sm border-radius-16px">
             <Container fluid>
                 <div className="d-flex align-items-center gap-3 ms-auto">
                     {user?.role === 'PRODUCTION_MANAGER' && (
                         <div
-                            className="position-relative cursor-pointer p-2 rounded-circle bg-light"
+                            className="position-relative cursor-pointer p-2 rounded-circle bg-white bg-opacity-10"
                             onClick={() => navigate('/production?tab=inbound')}
                             title="New Orders Waiting for Production"
                         >
-                            <Bell size={20} className="text-dark" />
+                            <Bell size={20} className="text-white" />
                             {notificationCount > 0 && (
                                 <Badge
                                     pill
@@ -59,14 +59,14 @@ const Header = () => {
                     )}
                     {user?.role === 'FINANCE_MANAGER' && (
                         <div
-                            className="position-relative cursor-pointer p-2 rounded-circle bg-light"
+                            className="position-relative cursor-pointer p-2 rounded-circle bg-white bg-opacity-10"
                             onClick={() => {
                                 dispatch({ type: 'po/markSeenFinance' });
                                 navigate('/invoices');
                             }}
                             title="New Orders Ready for Invoicing"
                         >
-                            <Bell size={20} className="text-dark" />
+                            <Bell size={20} className="text-white" />
                             {financeNotificationCount > 0 && (
                                 <Badge
                                     pill
@@ -80,11 +80,11 @@ const Header = () => {
                         </div>
                     )}
                     <Dropdown align="end">
-                        <Dropdown.Toggle variant="light" className="d-flex align-items-center gap-2 border-0 bg-transparent">
+                        <Dropdown.Toggle variant="light" className="d-flex align-items-center gap-2 border-0 bg-transparent text-white">
                             <div className="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style={{ width: 32, height: 32 }}>
                                 {user?.username?.charAt(0).toUpperCase()}
                             </div>
-                            <span className="text-dark">{user?.username} ({user?.role?.replace('_', ' ')?.replace('EXPORT', 'EXPORT/IMPORT')})</span>
+                            <span className="text-white">{user?.username} ({user?.role?.replace('_', ' ')?.replace('EXPORT', 'EXPORT/IMPORT')})</span>
                         </Dropdown.Toggle>
 
                         <Dropdown.Menu>

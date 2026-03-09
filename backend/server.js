@@ -6,10 +6,42 @@ const db = require('./src/models'); // Load all models and associations
 
 dotenv.config();
 
+const fs = require('fs');
+
 const app = express();
 
+// Request Logger
+app.use((req, res, next) => {
+    const start = Date.now();
+    res.on('finish', () => {
+        const duration = Date.now() - start;
+        const logEntry = `${new Date().toISOString()} - ${req.method} ${req.url} - Status: ${res.statusCode} - Origin: ${req.headers.origin} - Duration: ${duration}ms\n`;
+        if (req.method === 'POST' && req.url.includes('login')) {
+            const safeBody = { ...req.body };
+            const passLen = safeBody.password ? safeBody.password.length : 0;
+            if (safeBody.password) safeBody.password = '***';
+            fs.appendFileSync('http_requests.log', `[LOGIN DEBUG] Body: ${JSON.stringify(safeBody)}, passLen: ${passLen}\n`);
+        }
+        fs.appendFileSync('http_requests.log', logEntry);
+        console.log(logEntry);
+    });
+    next();
+});
+
 // Middleware
-app.use(cors());
+app.use(cors({
+    origin: function (origin, callback) {
+        const allowedOrigins = ['http://localhost:3000', 'http://127.0.0.1:3000', 'http://localhost:3001', 'http://127.0.0.1:3001', 'http://localhost:5173', 'http://127.0.0.1:5173'];
+        if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.json());
 
 // Database Connection & Sync

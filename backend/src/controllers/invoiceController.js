@@ -31,7 +31,7 @@ const generateNextInvoiceNumber = async (transaction = null) => {
 const createInvoice = async (req, res) => {
     const t = await sequelize.transaction();
     try {
-        const {
+        let {
             invoiceNumber: providedNumber,
             exportOrderId,
             purchaseOrderId,
@@ -46,6 +46,10 @@ const createInvoice = async (req, res) => {
             unitId,
             shipmentDetails // Object: { portOfLoading, portOfDestination, shipmentMethod, shippingDate, notes }
         } = req.body;
+
+        // PostgreSQL rejects empty strings for Integer columns
+        if (exportOrderId === '') exportOrderId = null;
+        if (purchaseOrderId === '') purchaseOrderId = null;
 
         const invoiceNumber = providedNumber || await generateNextInvoiceNumber(t);
 

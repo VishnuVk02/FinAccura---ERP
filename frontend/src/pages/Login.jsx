@@ -46,20 +46,28 @@ const Login = () => {
     return (
         <div ref={bgRef} style={{
             minHeight: '100vh',
-            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            background: 'linear-gradient(180deg, #000328 0%, #00458e 100%)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center'
         }}>
             <Container className="d-flex align-items-center justify-content-center">
-                <Card ref={cardRef} style={{ maxWidth: '420px', width: '100%' }} className="shadow-lg border-0">
+                <Card ref={cardRef} style={{
+                    maxWidth: '420px',
+                    width: '100%',
+                    borderRadius: '20px',
+                    boxShadow: '10px 10px 40px rgba(238, 227, 227, 0.58)',
+                    backdropFilter: 'blur(10px)',
+                    background: 'rgba(255, 255, 255, 0.95)',
+                    border: '1px solid rgba(255, 255, 255, 0.2)'
+                }} className="border-0">
                     <Card.Body className="p-5">
                         <div className="text-center mb-4">
                             <div className="d-inline-flex align-items-center justify-content-center rounded-circle mb-3"
-                                style={{ width: 60, height: 60, background: 'linear-gradient(135deg, #667eea, #764ba2)' }}>
+                                style={{ width: 60, height: 60, background: 'linear-gradient(135deg, #000328, #00458e)' }}>
                                 <Factory size={30} color="white" />
                             </div>
-                            <h3 className="fw-bold mb-1">Garment ERP</h3>
+                            <h3 className="fw-bold mb-1">FINACCURA</h3>
                             <p className="text-muted small">Sign in to your account</p>
                         </div>
 
@@ -89,7 +97,7 @@ const Login = () => {
                                 />
                             </Form.Group>
                             <Button type="submit" className="w-100 py-2 fw-semibold"
-                                style={{ background: 'linear-gradient(135deg, #667eea, #764ba2)', border: 'none' }}>
+                                style={{ background: 'linear-gradient(135deg, #000328, #00458e)', border: 'none' }}>
                                 Sign In
                             </Button>
                         </Form>

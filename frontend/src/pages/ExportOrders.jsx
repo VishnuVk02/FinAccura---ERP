@@ -76,6 +76,17 @@ const ExportOrders = () => {
         }
     };
 
+    const handleUpdateStatus = async (id, status) => {
+        try {
+            await api.put(`/export/orders/${id}/status`, { status });
+            toast.success(`Order marked as ${status}`);
+            fetchData();
+        } catch (err) {
+            console.error(err);
+            toast.error(err.response?.data?.message || 'Error updating order status');
+        }
+    };
+
     return (
         <div className="animate-fade-in">
             <div className="d-flex justify-content-between align-items-center mb-4">
@@ -109,7 +120,8 @@ const ExportOrders = () => {
                                     <th>Quantity</th>
                                     <th>Total Amount</th>
                                     <th>Date</th>
-                                    <th className="pe-4">Status</th>
+                                    <th>Status</th>
+                                    <th className="pe-4 text-end">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -129,10 +141,32 @@ const ExportOrders = () => {
                                             {o.currency} {parseFloat(o.totalAmount).toLocaleString()}
                                         </td>
                                         <td>{new Date(o.orderDate).toLocaleDateString()}</td>
-                                        <td className="pe-4">
-                                            <Badge bg={o.status === 'CREATED' ? 'primary' : 'success'}>
+                                        <td>
+                                            <Badge bg={o.status === 'CREATED' ? 'primary' : o.status === 'SHIPPED' ? 'warning' : 'success'}>
                                                 {o.status}
                                             </Badge>
+                                        </td>
+                                        <td className="pe-4 text-end">
+                                            {o.status === 'CREATED' && (
+                                                <Button
+                                                    variant="outline-warning"
+                                                    size="sm"
+                                                    onClick={() => handleUpdateStatus(o.id, 'SHIPPED')}
+                                                    className="d-flex align-items-center gap-1 ms-auto"
+                                                >
+                                                    <Truck size={14} /> Mark Shipped
+                                                </Button>
+                                            )}
+                                            {o.status === 'SHIPPED' && (
+                                                <Button
+                                                    variant="outline-success"
+                                                    size="sm"
+                                                    onClick={() => handleUpdateStatus(o.id, 'COMPLETED')}
+                                                    className="d-flex align-items-center gap-1 ms-auto"
+                                                >
+                                                    <Ship size={14} /> Mark Completed
+                                                </Button>
+                                            )}
                                         </td>
                                     </tr>
                                 ))}

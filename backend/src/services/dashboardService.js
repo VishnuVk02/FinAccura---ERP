@@ -43,7 +43,7 @@ const getDashboardStats = async () => {
         const incomeAccountIds = await getAccountIdsByMainGroup(null, 'Income');
         const expenseAccountIds = await getAccountIdsByMainGroup(null, 'Expense');
 
-        // 2. Sum revenue from Ledger with dynamic conversion
+        // 2. Sum revenue from Ledger where the origin is a SALES invoice voucher
         const revenueResult = await VoucherEntry.findAll({
             attributes: [
                 [
@@ -58,6 +58,7 @@ const getDashboardStats = async () => {
             ],
             include: [{
                 model: Voucher,
+                where: { voucherType: 'SALES' },
                 attributes: [],
                 include: [{
                     model: Invoice,
@@ -65,7 +66,6 @@ const getDashboardStats = async () => {
                     attributes: []
                 }]
             }],
-            where: { accountId: { [Op.in]: incomeAccountIds } },
             raw: true
         });
         const totalRevenue = revenueResult[0]?.total || 0;
@@ -323,8 +323,8 @@ const getProductionSummary = async () => {
 
 const getExportStats = async () => {
     try {
-        // Order volume / total amount per buyer
-        const buyerVolume = await ExportOrder.findAll({
+        // Order volume / total amount per buyer - Consolidated from ExportOrder and PurchaseOrder
+        const manualExportVolumes = await ExportOrder.findAll({
             attributes: [
                 [sequelize.col('Buyer.name'), 'buyerName'],
                 [
@@ -337,6 +337,30 @@ const getExportStats = async () => {
             group: ['Buyer.id', 'Buyer.name'],
             raw: true
         });
+
+        const poVolumes = await PurchaseOrder.findAll({
+            attributes: [
+                'buyerName',
+                [sequelize.fn('SUM', sequelize.col('totalValue')), 'totalVolume'],
+                [sequelize.fn('SUM', sequelize.col('quantity')), 'totalQuantity']
+            ],
+            group: ['buyerName'],
+            raw: true
+        });
+
+        const volumeMap = {};
+        const mergeVolumes = (sourceArray) => {
+            sourceArray.forEach(item => {
+                const name = item.buyerName || 'Unknown';
+                if (!volumeMap[name]) volumeMap[name] = { buyerName: name, totalVolume: 0, totalQuantity: 0 };
+                volumeMap[name].totalVolume += Number(item.totalVolume) || 0;
+                volumeMap[name].totalQuantity += Number(item.totalQuantity) || 0;
+            });
+        };
+        mergeVolumes(manualExportVolumes);
+        mergeVolumes(poVolumes);
+
+        const buyerVolume = Object.values(volumeMap).sort((a, b) => b.totalVolume - a.totalVolume).slice(0, 10);
 
         // Order status breakdown
         const orderStatus = await ExportOrder.findAll({
@@ -425,10 +449,17 @@ const getPOStats = async () => {
         const inProduction = await PurchaseOrder.count({ where: { status: 'IN_PRODUCTION' } });
         const completed = await PurchaseOrder.count({ where: { status: 'PRODUCTION_COMPLETED' } });
 
+        // 4. Recent POs
+        const recentPOs = await PurchaseOrder.findAll({
+            limit: 10,
+            order: [['createdAt', 'DESC']]
+        });
+
         return {
             poStatus,
             buyerValue,
             monthlyPOs,
+            recentPOs,
             summary: {
                 totalPOs,
                 inProduction,

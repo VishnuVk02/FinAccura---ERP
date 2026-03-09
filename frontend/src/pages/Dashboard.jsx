@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Row, Col, Card, Badge, ProgressBar } from 'react-bootstrap';
+import { Row, Col, Card, Badge, ProgressBar, Table, Button } from 'react-bootstrap';
 import { DollarSign, BarChart3, TrendingUp, AlertCircle, ShoppingBag, CheckCircle, Clock, Factory, Users, Activity } from 'lucide-react';
 import { BarChart, Bar, AreaChart, Area, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import api from '../services/api';
@@ -21,6 +21,25 @@ const Dashboard = () => {
         loading
     } = useSelector(state => state.dashboard);
 
+    const [selectedStatus, setSelectedStatus] = useState(null);
+    const statusList = [
+        'CREATED',
+        'IN_PRODUCTION',
+        'PRODUCTION_COMPLETED',
+        'READY_FOR_EXPORT',
+        'EXPORTED',
+        'PAYMENT_PENDING',
+        'PAYMENT_COMPLETED'
+    ];
+    const STATUS_COLORS = {
+        'CREATED': '#6c757d',
+        'IN_PRODUCTION': '#0d6efd',
+        'PRODUCTION_COMPLETED': '#0dcaf0',
+        'READY_FOR_EXPORT': '#ffc107',
+        'EXPORTED': '#212529',
+        'PAYMENT_PENDING': '#dc3545',
+        'PAYMENT_COMPLETED': '#198754'
+    };
     const productionCharts = productionStats || null;
     const summaryStats = productionStats?.summary || null;
 
@@ -120,8 +139,8 @@ const Dashboard = () => {
                                             <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} />
                                             <Tooltip />
                                             <Legend verticalAlign="top" align="right" />
-                                            <Bar dataKey="produced" name="Produced" fill="#10b981" radius={[2, 2, 0, 0]} stackId="a" />
-                                            <Bar dataKey="defects" name="Defects" fill="#ef4444" radius={[2, 2, 0, 0]} stackId="a" />
+                                            <Bar dataKey="produced" name="Produced" fill="#10b981" radius={[2, 2, 0, 0]} stackId="a" barSize={20} />
+                                            <Bar dataKey="defects" name="Defects" fill="#ef4444" radius={[2, 2, 0, 0]} stackId="a" barSize={20} />
                                         </BarChart>
                                     </ResponsiveContainer>
                                 </Card.Body>
@@ -268,7 +287,7 @@ const Dashboard = () => {
                                             <ResponsiveContainer width="100%" height="100%">
                                                 <PieChart>
                                                     <Pie
-                                                        data={financeStats.expenseCategories.map(e => ({ name: e['Account.SubGroup.name'], value: Number(e.amount) }))}
+                                                        data={financeStats.expenseCategories.map(e => ({ name: e['Account.name'], value: Number(e.amount) }))}
                                                         dataKey="value"
                                                         nameKey="name"
                                                         cx="50%" cy="50%"
@@ -299,7 +318,7 @@ const Dashboard = () => {
 
             {/* Export Charts Section */}
             {/* Export Charts Section */}
-            {['ADMIN', 'EXPORT_MANAGER'].includes(user?.role) && exportStats && (
+            {['ADMIN', 'EXPORT_MANAGER', 'PO_MANAGER'].includes(user?.role) && exportStats && (
                 <div className="animate-fade-in mt-4">
                     <Row className="mb-4">
                         <Col lg={8}>
@@ -391,7 +410,7 @@ const Dashboard = () => {
                             <Card className="border-0 shadow-sm h-100">
                                 <Card.Header className="bg-white py-3 border-0">
                                     <h6 className="mb-0 text-muted uppercase tracking-wider small fw-bold">
-                                        <BarChart3 size={16} className="me-2" /> Purchase Order Value by Buyer
+                                        <BarChart3 size={16} className="me-2" /> Purchase Order Distribution by Buyer
                                     </h6>
                                 </Card.Header>
                                 <Card.Body style={{ height: 350 }}>
@@ -415,64 +434,112 @@ const Dashboard = () => {
                             <Card className="border-0 shadow-sm h-100">
                                 <Card.Header className="bg-white py-3 border-0">
                                     <h6 className="mb-0 text-muted uppercase tracking-wider small fw-bold">
-                                        <CheckCircle size={16} className="me-2" /> PO Status distribution
+                                        <CheckCircle size={16} className="me-2" /> Order Status Distribution
                                     </h6>
                                 </Card.Header>
-                                <Card.Body style={{ height: 350 }}>
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <PieChart>
-                                            <Pie
-                                                data={poStats.poStatus}
-                                                dataKey="count"
-                                                nameKey="status"
-                                                cx="50%" cy="50%"
-                                                innerRadius={60}
-                                                outerRadius={100}
-                                                paddingAngle={5}
-                                            >
-                                                {poStats.poStatus?.map((entry, index) => (
-                                                    <Cell key={`cell-${index}`} fill={COLORS[(index + 1) % COLORS.length]} />
-                                                ))}
-                                            </Pie>
-                                            <Tooltip />
-                                            <Legend layout="horizontal" verticalAlign="bottom" align="center" />
-                                        </PieChart>
-                                    </ResponsiveContainer>
+                                <Card.Body className="p-4">
+                                    <div className="d-flex justify-content-between align-items-center mb-3">
+                                        <h6 className="mb-0 fw-bold text-primary">Status-wise Tracking List</h6>
+                                        {selectedStatus && (
+                                            <Button variant="link" size="sm" onClick={() => setSelectedStatus(null)} className="text-decoration-none">
+                                                Clear Filter
+                                            </Button>
+                                        )}
+                                    </div>
+                                    <Row className="g-3">
+                                        {statusList.map(status => {
+                                            const statusData = poStats.poStatus?.find(s => s.status === status);
+                                            const count = statusData ? parseInt(statusData.count) : 0;
+                                            const total = poStats.summary?.totalPOs || 1;
+                                            const percentage = (count / total) * 100;
+                                            const isActive = selectedStatus === status;
+
+                                            return (
+                                                <Col key={status} xs={12}>
+                                                    <div
+                                                        onClick={() => setSelectedStatus(isActive ? null : status)}
+                                                        className={`p-2 px-3 rounded border cursor-pointer transition-all ${isActive ? 'border-primary bg-primary bg-opacity-10 shadow-sm' : 'bg-white hover-bg-light'}`}
+                                                        style={{ cursor: 'pointer' }}
+                                                    >
+                                                        <div className="d-flex justify-content-between align-items-center mb-1">
+                                                            <span className="small fw-bold text-uppercase" style={{ fontSize: '10px' }}>{status.replace(/_/g, ' ')}</span>
+                                                            <Badge bg={isActive ? 'primary' : 'light'} text={isActive ? 'white' : 'dark'} className="rounded-pill">
+                                                                {count}
+                                                            </Badge>
+                                                        </div>
+                                                        <div className="progress" style={{ height: 4 }}>
+                                                            <div
+                                                                className="progress-bar"
+                                                                role="progressbar"
+                                                                style={{
+                                                                    width: `${percentage}%`,
+                                                                    backgroundColor: STATUS_COLORS[status]
+                                                                }}
+                                                                aria-valuenow={percentage}
+                                                                aria-valuemin="0"
+                                                                aria-valuemax="100"
+                                                            ></div>
+                                                        </div>
+                                                    </div>
+                                                </Col>
+                                            );
+                                        })}
+                                    </Row>
                                 </Card.Body>
+
                             </Card>
                         </Col>
                     </Row>
 
-                    <Row>
+                    <Row className="mt-4">
                         <Col lg={12}>
-                            <Card className="border-0 shadow-sm h-100">
-                                <Card.Header className="bg-white py-3 border-0">
+                            <Card className="border-0 shadow-sm">
+                                <Card.Header className="bg-white py-3 border-0 d-flex justify-content-between align-items-center">
                                     <h6 className="mb-0 text-muted uppercase tracking-wider small fw-bold">
-                                        <TrendingUp size={16} className="me-2" /> Monthly PO Intake Trend
+                                        <ShoppingBag size={16} className="me-2" /> Recently Performed PO Orders
                                     </h6>
+                                    <Badge bg="primary" pill>Recent Orders</Badge>
                                 </Card.Header>
-                                <Card.Body style={{ height: 300 }}>
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <LineChart data={poStats.monthlyPOs}>
-                                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                                            <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 11 }}
-                                                tickFormatter={(val) => new Date(val).toLocaleDateString(undefined, { month: 'short' })} />
-                                            <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 11 }} />
-                                            <Tooltip
-                                                contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}
-                                            />
-                                            <Legend verticalAlign="top" align="right" />
-                                            <Line
-                                                type="monotone"
-                                                dataKey="totalValue"
-                                                name="PO Value ($)"
-                                                stroke="#10b981"
-                                                strokeWidth={3}
-                                                dot={{ r: 4, fill: '#10b981', strokeWidth: 2, stroke: '#fff' }}
-                                                activeDot={{ r: 6, strokeWidth: 0 }}
-                                            />
-                                        </LineChart>
-                                    </ResponsiveContainer>
+                                <Card.Body className="p-0">
+                                    <div className="table-responsive">
+                                        <Table hover className="mb-0 align-middle small">
+                                            <thead className="bg-light">
+                                                <tr>
+                                                    <th className="ps-4">Order ID</th>
+                                                    <th>Buyer</th>
+                                                    <th>Order Date</th>
+                                                    <th>Quantity</th>
+                                                    <th>Status</th>
+                                                    <th className="text-end pe-4">Value</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {poStats.recentPOs?.filter(po => selectedStatus ? po.status === selectedStatus : true).map(po => (
+                                                    <tr key={po.id}>
+                                                        <td className="ps-4 fw-bold text-primary">PO-{po.id.toString().padStart(4, '0')}</td>
+                                                        <td>{po.buyerName}</td>
+                                                        <td>{new Date(po.orderDate).toLocaleDateString()}</td>
+                                                        <td>{po.quantity?.toLocaleString()} Pcs</td>
+                                                        <td>
+                                                            <Badge bg={
+                                                                po.status === 'PAYMENT_COMPLETED' ? 'success' :
+                                                                    po.status === 'IN_PRODUCTION' ? 'primary' :
+                                                                        po.status === 'CREATED' ? 'secondary' : 'info'
+                                                            } className="rounded-pill px-2">
+                                                                {po.status.replace(/_/g, ' ')}
+                                                            </Badge>
+                                                        </td>
+                                                        <td className="text-end pe-4 fw-bold">$ {parseFloat(po.totalValue).toLocaleString()}</td>
+                                                    </tr>
+                                                ))}
+                                                {(!poStats.recentPOs || poStats.recentPOs.length === 0) && (
+                                                    <tr>
+                                                        <td colSpan="6" className="text-center py-4 text-muted">No recent orders found</td>
+                                                    </tr>
+                                                )}
+                                            </tbody>
+                                        </Table>
+                                    </div>
                                 </Card.Body>
                             </Card>
                         </Col>

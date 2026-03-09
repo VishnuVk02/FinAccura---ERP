@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { createBuyer, getBuyers, updateBuyer, deleteBuyer, createExportOrder, getExportOrders } = require('../controllers/exportController');
+const { createBuyer, getBuyers, updateBuyer, deleteBuyer, createExportOrder, getExportOrders, updateExportOrderStatus } = require('../controllers/exportController');
 const { protect, authorize } = require('../middleware/authMiddleware');
 
 router.post('/buyers', protect, authorize('ADMIN', 'EXPORT_MANAGER'), createBuyer);
@@ -10,11 +10,12 @@ router.delete('/buyers/:id', protect, authorize('ADMIN', 'EXPORT_MANAGER'), dele
 
 router.post('/orders', protect, authorize('ADMIN', 'EXPORT_MANAGER'), createExportOrder);
 router.get('/orders', protect, getExportOrders);
+router.put('/orders/:id/status', protect, authorize('EXPORT_MANAGER', 'ADMIN'), updateExportOrderStatus);
 
 // New PO Integration Routes
 const poController = require('../controllers/poController');
 router.get('/orders-ready', protect, authorize('EXPORT_MANAGER', 'ADMIN'), (req, res, next) => {
-    req.query.statuses = 'PRODUCTION_COMPLETED,READY_FOR_EXPORT,EXPORTED';
+    req.query.statuses = 'PRODUCTION_COMPLETED,READY_FOR_EXPORT,EXPORTED,PAYMENT_COMPLETED';
     next();
 }, poController.getOrdersByStatus);
 

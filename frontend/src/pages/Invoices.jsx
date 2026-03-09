@@ -484,7 +484,7 @@ const Invoices = () => {
                                     <Form.Label>Sales Ledger (Cr)</Form.Label>
                                     <Form.Select required value={formData.salesAccountId} onChange={e => setFormData({ ...formData, salesAccountId: e.target.value })}>
                                         <option value="">Select Account</option>
-                                        {accounts.filter(a => a.name.includes('Sales') || a.name.includes('Revenue')).map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
+                                        {accounts.filter(a => a.name.includes('Sales') || a.name.includes('Revenue') || a.name.includes('HDFC')).map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
                                     </Form.Select>
                                 </Form.Group>
                             </Col>

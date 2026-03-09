@@ -42,9 +42,9 @@ const Sidebar = () => {
             <div className="px-4 mb-4">
                 <h4 className="text-white d-flex align-items-center gap-2">
                     <Factory size={24} />
-                    Garment ERP
+                    FINACCURA
                 </h4>
-                <small className="text-muted" style={{ fontSize: '0.7rem' }}>
+                <small className="text-bold" style={{ fontSize: '0.7rem', fontFamily: "poppins" }}>
                     {user?.role?.replace('_', ' ')}
                 </small>
             </div>

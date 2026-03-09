@@ -54,6 +54,8 @@ const loginUser = async (req, res) => {
             include: [{ model: Role, attributes: ['name'] }]
         });
 
+        console.log(`[LOGIN DEBUG] email: ${email}, passLength: ${password?.length}`);
+
         if (user && (await bcrypt.compare(password, user.password))) {
             res.json({
                 id: user.id,
@@ -124,4 +126,11 @@ const deleteUser = async (req, res) => {
     }
 };
 
-module.exports = { registerUser, loginUser, getUserProfile, getUsers, deleteUser };
+// @desc    Refresh token (Dummy)
+// @route   POST /api/auth/refresh
+// @access  Public
+const refreshToken = async (req, res) => {
+    res.json({ message: 'Token refresh successful (dummy)' });
+};
+
+module.exports = { registerUser, loginUser, getUserProfile, getUsers, deleteUser, refreshToken };

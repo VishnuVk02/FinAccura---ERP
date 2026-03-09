@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchOrdersRequest, fetchAllocationRequest, saveDailyEntryRequest, fetchReportsByDateRequest } from '../../store/slices/productionSlice';
 import { toast } from 'react-hot-toast';
 
-const DailyEntry = () => {
+const DailyEntry = ({ commonDate }) => {
     const dispatch = useDispatch();
     const { orders: allOrders, currentAllocation: allocation, reportsForDate, loading } = useSelector(state => state.production);
     const orders = allOrders.filter(o => o.status === 'IN_PROGRESS');
@@ -13,7 +13,7 @@ const DailyEntry = () => {
     const [showModal, setShowModal] = useState(false);
     const [formData, setFormData] = useState({
         productionOrderId: '',
-        productionDate: new Date().toISOString().split('T')[0],
+        productionDate: commonDate || new Date().toISOString().split('T')[0],
         totalProduced: 0,
         totalDefects: 0,
         remarks: ''
@@ -29,6 +29,12 @@ const DailyEntry = () => {
             dispatch(fetchReportsByDateRequest(formData.productionDate));
         }
     }, [formData.productionDate, dispatch]);
+
+    useEffect(() => {
+        if (commonDate) {
+            setFormData(prev => ({ ...prev, productionDate: commonDate }));
+        }
+    }, [commonDate]);
 
     const filteredOrders = orders.filter(order => {
         const alreadyReported = reportsForDate.some(r => r.productionOrderId == order.id);
@@ -84,7 +90,7 @@ const DailyEntry = () => {
         setShowModal(false);
         setFormData({
             productionOrderId: '',
-            productionDate: new Date().toISOString().split('T')[0],
+            productionDate: commonDate || new Date().toISOString().split('T')[0],
             totalProduced: '',
             totalDefects: '',
             remarks: ''

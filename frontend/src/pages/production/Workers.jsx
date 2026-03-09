@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchProductionDataRequest, saveAllocationRequest } from '../../store/slices/productionSlice';
 import { toast } from 'react-hot-toast';
 
-const Workers = () => {
+const Workers = ({ commonDate }) => {
     const dispatch = useDispatch();
     const { allocations, lines: allLines, loading } = useSelector(state => state.production);
     const lines = allLines.filter(l => l.isActive);
@@ -19,12 +19,18 @@ const Workers = () => {
         standardOutputPerWorker: '8', // default 8
         workingHours: '8', // default 8
         supervisorName: '',
-        allocationDate: new Date().toISOString().split('T')[0]
+        allocationDate: commonDate || new Date().toISOString().split('T')[0]
     });
 
     useEffect(() => {
         dispatch(fetchProductionDataRequest());
     }, [dispatch]);
+
+    useEffect(() => {
+        if (commonDate) {
+            setFormData(prev => ({ ...prev, allocationDate: commonDate }));
+        }
+    }, [commonDate]);
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -35,7 +41,7 @@ const Workers = () => {
 
         dispatch(saveAllocationRequest(formData));
         setShowModal(false);
-        setFormData({ lineId: '', shiftType: 'DAY', plannedWorkers: '', presentWorkers: '', standardOutputPerWorker: '8', workingHours: '8', supervisorName: '', allocationDate: new Date().toISOString().split('T')[0] });
+        setFormData({ lineId: '', shiftType: 'DAY', plannedWorkers: '', presentWorkers: '', standardOutputPerWorker: '8', workingHours: '8', supervisorName: '', allocationDate: commonDate || new Date().toISOString().split('T')[0] });
     };
 
     if (loading && allocations.length === 0) return <div className="p-5 text-center"><Spinner animation="border" /></div>;

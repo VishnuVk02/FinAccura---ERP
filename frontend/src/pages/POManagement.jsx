@@ -98,17 +98,6 @@ const POManagement = () => {
         return <Badge bg={variants[status] || 'secondary'}>{status.replace(/_/g, ' ')}</Badge>;
     };
 
-    // Prepare chart data
-    const chartData = Object.values(orders.reduce((acc, order) => {
-        const buyer = order.buyerName || 'Unknown';
-        if (!acc[buyer]) {
-            acc[buyer] = { name: buyer, value: 0 };
-        }
-        acc[buyer].value += parseFloat(order.totalValue);
-        return acc;
-    }, {})).sort((a, b) => b.value - a.value);
-
-    const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
 
     return (
         <div className="animate-fade-in">
@@ -122,33 +111,7 @@ const POManagement = () => {
                 </Button>
             </div>
 
-            {/* <Row className="mb-4">
-                <Col md={12}>
-                    <Card className="border-0 shadow-sm">
-                        <Card.Body className="p-4">
-                            <h6 className="mb-4 fw-bold">Total Order Value by Buyer (USD)</h6>
-                            <div style={{ width: '100%', height: 300 }}>
-                                <ResponsiveContainer>
-                                    <BarChart data={chartData}>
-                                        <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                                        <XAxis dataKey="name" />
-                                        <YAxis tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`} />
-                                        <Tooltip
-                                            formatter={(value) => [`$${parseFloat(value).toLocaleString()}`, 'Total Value']}
-                                            contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
-                                        />
-                                        <Bar dataKey="value" radius={[4, 4, 0, 0]} barSize={50}>
-                                            {chartData.map((entry, index) => (
-                                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                            ))}
-                                        </Bar>
-                                    </BarChart>
-                                </ResponsiveContainer>
-                            </div>
-                        </Card.Body>
-                    </Card>
-                </Col>
-            </Row> */}
+            {/* Distribution removed as per user request */}
 
             <Row className="mb-4">
                 <Col md={12}>
