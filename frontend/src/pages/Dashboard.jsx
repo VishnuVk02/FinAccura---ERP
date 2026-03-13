@@ -69,7 +69,7 @@ const Dashboard = () => {
             </div>
 
             {/* Production Summary Widget */}
-            {summaryStats && (
+            {summaryStats && user?.role !== 'EXPORT_MANAGER' && (
                 <Card className="border-0 shadow-sm mb-4 overflow-hidden" style={{ background: 'linear-gradient(135deg, #4338ca 0%, #6d28d9 100%)' }}>
                     <Card.Body className="text-white p-4">
                         <div className="d-flex align-items-center gap-2 mb-4">
@@ -98,7 +98,7 @@ const Dashboard = () => {
             )}
 
             {/* Production Charts Section */}
-            {productionCharts && (
+            {productionCharts && user?.role !== 'EXPORT_MANAGER' && (
                 <div className="animate-fade-in">
                     <Row className="mb-4">
                         <Col lg={8}>
@@ -180,7 +180,7 @@ const Dashboard = () => {
             )}
 
             {/* Finance Cards (Only for ADMIN/FINANCE) */}
-            {['ADMIN', 'FINANCE_MANAGER'].includes(user?.role) && (
+            {['ADMIN', 'FINANCE_MANAGER', 'EXPORT_MANAGER'].includes(user?.role) && (
                 <div className="animate-fade-in">
                     <Row ref={cardsRef} className="mb-4">
                         {financeCards.map((stat, idx) => (
@@ -379,7 +379,7 @@ const Dashboard = () => {
             )}
 
             {/* PO Analytics Section */}
-            {['ADMIN', 'PO_MANAGER'].includes(user?.role) && poStats && (
+            {['ADMIN', 'PO_MANAGER', 'EXPORT_MANAGER'].includes(user?.role) && poStats && (
                 <div className="animate-fade-in mt-4">
                     <Card className="border-0 shadow-sm mb-4 bg-light">
                         <Card.Body className="p-4">

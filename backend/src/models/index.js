@@ -19,6 +19,7 @@ const DailyProductionReport = require('./DailyProductionReport');
 const WorkerAllocation = require('./WorkerAllocation');
 const PurchaseOrder = require('./PurchaseOrder');
 const PurchaseOrderStyle = require('./PurchaseOrderStyle');
+const FabricStock = require('./FabricStock');
 const InvoiceExtra = require('./InvoiceExtra');
 
 // Authentication Relationships
@@ -122,7 +123,8 @@ const db = {
     WorkerAllocation,
     PurchaseOrder,
     PurchaseOrderStyle,
-    InvoiceExtra
+    InvoiceExtra,
+    FabricStock
 };
 
 module.exports = db;

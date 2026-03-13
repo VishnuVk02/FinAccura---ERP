@@ -362,15 +362,33 @@ const getExportStats = async () => {
 
         const buyerVolume = Object.values(volumeMap).sort((a, b) => b.totalVolume - a.totalVolume).slice(0, 10);
 
-        // Order status breakdown
-        const orderStatus = await ExportOrder.findAll({
-            attributes: [
-                'status',
-                [sequelize.fn('COUNT', sequelize.col('id')), 'count']
-            ],
+        // Order status breakdown - Combined from ExportOrder and PurchaseOrder
+        const manualStatus = await ExportOrder.findAll({
+            attributes: ['status', [sequelize.fn('COUNT', sequelize.col('id')), 'count']],
             group: ['status'],
             raw: true
         });
+
+        const poStatus = await PurchaseOrder.findAll({
+            attributes: ['status', [sequelize.fn('COUNT', sequelize.col('id')), 'count']],
+            group: ['status'],
+            raw: true
+        });
+
+        const statusMap = {};
+        const mergeStatus = (sourceArray) => {
+            sourceArray.forEach(item => {
+                if (!statusMap[item.status]) statusMap[item.status] = 0;
+                statusMap[item.status] += parseInt(item.count) || 0;
+            });
+        };
+        mergeStatus(manualStatus);
+        mergeStatus(poStatus);
+
+        const orderStatus = Object.keys(statusMap).map(status => ({
+            status,
+            count: statusMap[status]
+        }));
 
         // Monthly order trend
         const monthlyOrders = await ExportOrder.findAll({

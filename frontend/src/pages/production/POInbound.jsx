@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Table, Button, Badge, Spinner, Modal, Form, Row, Col } from 'react-bootstrap';
-import { Play, CheckCircle, Factory, Calendar, Hash, Plus } from 'lucide-react';
+import { Play, CheckCircle, Factory, Calendar, Hash, Plus, Info } from 'lucide-react';
 import { fetchProductionDataRequest } from '../../store/slices/productionSlice';
 
 const POInbound = () => {
@@ -11,16 +11,32 @@ const POInbound = () => {
 
     const [showModal, setShowModal] = React.useState(false);
     const [selectedPO, setSelectedPO] = React.useState(null);
+    const [fabricStock, setFabricStock] = React.useState([]);
     const [formData, setFormData] = React.useState({
         lineId: '',
         targetQuantity: 0,
-        assignedDate: new Date().toISOString().split('T')[0]
+        assignedDate: new Date().toISOString().split('T')[0],
+        fabricAvailability: ''
     });
 
     useEffect(() => {
         dispatch({ type: 'po/fetchProductionOrders' });
         dispatch(fetchProductionDataRequest());
+        fetchFabricStock();
     }, [dispatch]);
+
+    const fetchFabricStock = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch('http://localhost:5000/api/po/fabric-stock', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await response.json();
+            setFabricStock(data);
+        } catch (error) {
+            console.error('Error fetching fabric stock:', error);
+        }
+    };
 
     useEffect(() => {
         if (lines.length > 0 && !formData.lineId && selectedPO) {
@@ -33,7 +49,8 @@ const POInbound = () => {
         setFormData({
             lineId: lines[0]?.id || '',
             targetQuantity: order.quantity,
-            assignedDate: new Date().toISOString().split('T')[0]
+            assignedDate: new Date().toISOString().split('T')[0],
+            fabricAvailability: order.fabricType || ''
         });
         setShowModal(true);
     };
@@ -214,6 +231,38 @@ const POInbound = () => {
                                                     onChange={(e) => setFormData({ ...formData, targetQuantity: e.target.value })}
                                                     required
                                                 />
+                                            </div>
+                                        </Form.Group>
+                                    </Col>
+                                    <Col md={12}>
+                                        <Form.Group>
+                                            <Form.Label className="small fw-semibold text-muted">Fabric Availability (Auto-checked from PO)</Form.Label>
+                                            <div className="input-group">
+                                                <span className="input-group-text bg-light border-end-0"><Info size={16} /></span>
+                                                <Form.Select
+                                                    className="border-start-0 shadow-none"
+                                                    style={{
+                                                        backgroundColor: fabricStock.find(fs => fs.fabricName === formData.fabricAvailability)?.quantity > 0
+                                                            ? '#e6fffa' // Light green
+                                                            : '#fff5f5' // Light red
+                                                    }}
+                                                    value={formData.fabricAvailability}
+                                                    onChange={(e) => setFormData({ ...formData, fabricAvailability: e.target.value })}
+                                                    required
+                                                >
+                                                    <option value="">Select Fabric...</option>
+                                                    {fabricStock.map(fs => (
+                                                        <option
+                                                            key={fs.id}
+                                                            value={fs.fabricName}
+                                                            style={{
+                                                                backgroundColor: fs.quantity > 0 ? '#e6fffa' : '#fff5f5'
+                                                            }}
+                                                        >
+                                                            {fs.fabricName} - {fs.quantity > 0 ? `In Stock (${fs.quantity} ${fs.unit})` : 'Out of Stock'}
+                                                        </option>
+                                                    ))}
+                                                </Form.Select>
                                             </div>
                                         </Form.Group>
                                     </Col>

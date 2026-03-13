@@ -7,6 +7,6 @@ router.get('/stats', protect, getStats);
 router.get('/finance-stats', protect, authorize('ADMIN', 'FINANCE_MANAGER'), getFinanceStats);
 router.get('/production-summary', protect, authorize('ADMIN', 'PRODUCTION_MANAGER'), getProductionSummary);
 router.get('/export-stats', protect, authorize('ADMIN', 'EXPORT_MANAGER'), getExportStats);
-router.get('/po-stats', protect, authorize('ADMIN', 'PO_MANAGER'), getPOStats);
+router.get('/po-stats', protect, authorize('ADMIN', 'PO_MANAGER', 'EXPORT_MANAGER'), getPOStats);
 
 module.exports = router;

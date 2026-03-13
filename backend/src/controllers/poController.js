@@ -1,4 +1,4 @@
-const { PurchaseOrder, PurchaseOrderStyle, User, ProductionOrder, ProductionLine } = require('../models');
+const { PurchaseOrder, PurchaseOrderStyle, User, ProductionOrder, ProductionLine, FabricStock } = require('../models');
 const { triggerAutoInvoice } = require('./invoiceController');
 
 exports.createPO = async (req, res) => {
@@ -229,6 +229,17 @@ exports.startProduction = async (req, res) => {
             message: error.message,
             error: error.errors ? error.errors.map(e => e.message) : error.message
         });
+    }
+};
+
+exports.getFabricStock = async (req, res) => {
+    try {
+        const stock = await FabricStock.findAll({
+            order: [['fabricName', 'ASC']]
+        });
+        res.json(stock);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
     }
 };
 

@@ -13,14 +13,23 @@ import {
 function* handleLogin(action) {
     try {
         const { email, password } = action.payload;
-        const response = yield call(api.post, '/auth/login', { email, password });
-        const { token, ...user } = response.data;
+        console.log('[AUTH SAGA] Attempting login for:', email);
+        const response = yield call([api, api.post], '/auth/login', { email, password });
+
+        // Handle both standard axios response and data-only responses
+        const responseData = response.data || response;
+        const { token, ...user } = responseData;
+
+        if (!token) {
+            console.error('[AUTH SAGA] Token missing in response!');
+            throw new Error('Token missing in server response');
+        }
+
         localStorage.setItem('token', token);
+        console.log('[AUTH SAGA] Login successful, token stored');
         yield put(loginSuccess({ user, token }));
     } catch (error) {
-        console.error('[LOGIN SAGA ERROR]', error);
-        console.error('Error response:', error.response);
-        console.error('Error message:', error.message);
+        console.error('[AUTH SAGA] Login error:', error);
         yield put(loginFailure(error.response?.data?.message || error.message || 'Login failed'));
     }
 }

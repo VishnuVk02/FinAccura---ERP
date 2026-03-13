@@ -44,7 +44,7 @@ function* handleFetchDashboard() {
             } catch (e) { console.log('Export stats not available'); }
         }
 
-        if (['ADMIN', 'PO_MANAGER'].includes(user?.role)) {
+        if (['ADMIN', 'PO_MANAGER', 'EXPORT_MANAGER'].includes(user?.role)) {
             try {
                 const poRes = yield call(api.get, '/dashboard/po-stats');
                 yield put(fetchPOStatsSuccess(poRes.data));

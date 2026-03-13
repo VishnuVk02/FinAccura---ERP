@@ -1,6 +1,6 @@
+const bcrypt = require('bcryptjs');
 const { User, Role } = require('../models');
 const { generateToken } = require('../utils/jwtUtils');
-const bcrypt = require('bcryptjs');
 
 // @desc    Register a new user
 // @route   POST /api/auth/register
@@ -57,14 +57,21 @@ const loginUser = async (req, res) => {
         console.log(`[LOGIN DEBUG] email: ${email}, passLength: ${password?.length}`);
 
         if (user && (await bcrypt.compare(password, user.password))) {
+            const token = generateToken(user.id);
+            const logMsg = `[AUTH DEBUG] Login success for ${email}. Generated token: ${token.substring(0, 10)}... (Secret: ${process.env.JWT_SECRET?.substring(0, 5)}...)\n`;
+            const fs = require('fs');
+            fs.appendFileSync('http_requests.log', logMsg);
+
             res.json({
                 id: user.id,
                 username: user.username,
                 email: user.email,
                 role: user.Role.name,
-                token: generateToken(user.id)
+                token: token
             });
         } else {
+            const fs = require('fs');
+            fs.appendFileSync('http_requests.log', `[AUTH DEBUG] Login failed for ${email}: Invalid credentials\n`);
             res.status(401).json({ message: 'Invalid email or password' });
         }
     } catch (error) {

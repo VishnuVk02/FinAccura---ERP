@@ -1,12 +1,8 @@
 const express = require('express');
 const cors = require('cors');
-const dotenv = require('dotenv');
-const { connectDB, sequelize } = require('./src/config/db');
-const db = require('./src/models'); // Load all models and associations
-
-dotenv.config();
-
+require('dotenv').config();
 const fs = require('fs');
+const { sequelize, connectDB } = require('./src/config/db');
 
 const app = express();
 
